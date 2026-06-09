@@ -1,4 +1,4 @@
-import huggingface_hub
+# import huggingface_hub
 import polars as pl
 from sentence_transformers import SentenceTransformer
 
