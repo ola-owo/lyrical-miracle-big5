@@ -5,7 +5,7 @@ from typing import Any
 import litserve as ls
 from sentence_transformers import SentenceTransformer
 
-from globalvars import BIG5_TRAITS, LORA_MODEL
+from big5.globalvars import BIG5_TRAITS, LORA_MODEL
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,7 @@ class BigFiveAPI(ls.LitAPI):
         if not isinstance(instances, list) or not instances:
             raise ValueError("Request body must include a non-empty 'instances' array.")
 
-        parameters = request.get("parameters") or {}
+        parameters = request.get("parameters", {})
         if not isinstance(parameters, dict):
             raise ValueError("'parameters' must be a JSON object when provided.")
 
