@@ -1,6 +1,9 @@
 .codex/
 **/*.env
 
+# ignore uv.lock, track pylocks instead
+uv.lock
+
 # Gitignore template below copied from:
 # https://github.com/github/gitignore/blob/main/Python.gitignore
 
