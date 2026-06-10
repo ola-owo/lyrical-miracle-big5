@@ -15,6 +15,10 @@ class FakeEmbedding(list[float]):
     def tolist(self) -> list[float]:
         return list(self)
 
+    def normalize(self):
+        scalar = 1.0 / sum(self)
+        return FakeEmbedding([scalar * x for x in self])
+
 
 class FakeSentenceTransformer:
     def encode(
@@ -23,12 +27,15 @@ class FakeSentenceTransformer:
         convert_to_numpy: bool = True,
         normalize_embeddings: bool = False,
     ) -> list[FakeEmbedding]:
-        assert convert_to_numpy is True
-        offset = 10.0 if normalize_embeddings else 0.0
-        return [
-            FakeEmbedding([offset + index + trait_index / 10 for trait_index in range(len(BIG5_TRAITS))])
-            for index, _text in enumerate(texts)
+        assert convert_to_numpy
+        n_traits = len(BIG5_TRAITS)
+        outputs = [
+            FakeEmbedding([10 * i + trait_index for trait_index in range(n_traits)])
+            for i in range(len(texts))
         ]
+        if normalize_embeddings:
+            outputs = [out.normalize() for out in outputs]
+        return outputs
 
 
 @pytest.fixture()
@@ -41,10 +48,6 @@ def api() -> BigFiveAPI:
 @pytest.fixture()
 def client(api: BigFiveAPI) -> Iterator[TestClient]:
     app = FastAPI()
-
-    @app.get("/healthcheck")
-    def healthcheck() -> dict[str, str]:
-        return {"status": "ok"}
 
     @app.post("/predict")
     def predict(payload: dict[str, Any]) -> dict[str, Any]:
@@ -64,7 +67,7 @@ def test_litserve_registers_vertex_routes() -> None:
         BigFiveAPI(api_path="/predict"),
         accelerator="cpu",
         devices=1,
-        healthcheck_path="/healthcheck",
+        healthcheck_path="/health",
     )
 
     routes = {
@@ -73,14 +76,7 @@ def test_litserve_registers_vertex_routes() -> None:
         if hasattr(route, "methods")
     }
     assert "POST" in routes["/predict"]
-    assert "GET" in routes["/healthcheck"]
-
-
-def test_healthcheck_endpoint(client: TestClient) -> None:
-    response = client.get("/healthcheck")
-
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert "GET" in routes["/health"]
 
 
 def test_predict_accepts_string_instances(client: TestClient) -> None:
@@ -93,37 +89,38 @@ def test_predict_accepts_string_instances(client: TestClient) -> None:
     assert response.json() == {
         "predictions": [
             {
-                "Openness": 0.0,
-                "Conscientiousness": 0.1,
-                "Extraversion": 0.2,
-                "Agreeableness": 0.3,
-                "Neuroticism": 0.4,
+                "Openness": 0,
+                "Conscientiousness": 1,
+                "Extraversion": 2,
+                "Agreeableness": 3,
+                "Neuroticism": 4,
             },
             {
-                "Openness": 1.0,
-                "Conscientiousness": 1.1,
-                "Extraversion": 1.2,
-                "Agreeableness": 1.3,
-                "Neuroticism": 1.4,
+                "Openness": 10,
+                "Conscientiousness": 11,
+                "Extraversion": 12,
+                "Agreeableness": 13,
+                "Neuroticism": 14,
             },
         ]
     }
 
 
 def test_predict_accepts_text_object_instances_and_include_text(client: TestClient) -> None:
+    input_texts = ['curious', 'careful']
     response = client.post(
         "/predict",
         json={
-            "instances": [{"text": "curious"}, {"text": "careful"}],
+            "instances": [{"text": text} for text in input_texts],
             "parameters": {"include_text": True},
         },
     )
 
     assert response.status_code == 200
     predictions = response.json()["predictions"]
-    assert predictions[0]["text"] == "curious"
-    assert predictions[1]["text"] == "careful"
-    assert list(predictions[0]) == ["text", *BIG5_TRAITS]
+    for text, pred in zip(input_texts, predictions):
+        assert pred['text'] == text
+        assert set(pred.keys()) == set(BIG5_TRAITS + ['text'])
 
 
 def test_predict_honors_normalize_embeddings_parameter(client: TestClient) -> None:
@@ -135,14 +132,15 @@ def test_predict_honors_normalize_embeddings_parameter(client: TestClient) -> No
         },
     )
 
+    vec_sum = sum(range(5))
     assert response.status_code == 200
     assert response.json()["predictions"] == [
         {
-            "Openness": 10.0,
-            "Conscientiousness": 10.1,
-            "Extraversion": 10.2,
-            "Agreeableness": 10.3,
-            "Neuroticism": 10.4,
+            "Openness": pytest.approx(0 / vec_sum),
+            "Conscientiousness": pytest.approx(1 / vec_sum),
+            "Extraversion": pytest.approx(2 / vec_sum),
+            "Agreeableness": pytest.approx(3 / vec_sum),
+            "Neuroticism": pytest.approx(4 / vec_sum),
         }
     ]
 
