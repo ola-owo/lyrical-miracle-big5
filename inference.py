@@ -1,3 +1,5 @@
+"""Small script that loads the fine-tuned model and encodes some test inputs"""
+
 # import huggingface_hub
 import polars as pl
 from sentence_transformers import SentenceTransformer

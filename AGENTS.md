@@ -23,6 +23,8 @@ There is no build step at present; this repository is script/notebook driven.
 
 - [LitServe](https://lightning.ai/docs/litserve) for serving model inference
 - [SentenceTransformers](https://www.sbert.net/) for building and using transformer models
+- [Gemini Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform) AKA Vertex AI,
+  used for running AI/ML workflows in Google Cloud
 
 ## Coding Style & Naming Conventions
 
@@ -48,4 +50,6 @@ Pull requests should include a concise summary, any relevant issue links, comman
 
 ## Security & Configuration Tips
 
-Do not read, print, or commit `.env` files or tokens. Keep Hugging Face and W&B credentials in local environment files or shell configuration. Before sharing notebooks, clear sensitive outputs and avoid embedding private dataset paths or access tokens.
+- Do not read, print, or commit `.env` files or tokens. Keep Hugging Face and W&B credentials in local environment files or shell configuration.
+  Before sharing notebooks, clear sensitive outputs and avoid embedding private dataset paths or access tokens.
+- When running `uv`, use `UV_CACHE_DIR=/tmp/uv-cache`. Otherwise errors will happen because the default cache is not writable by agents.
