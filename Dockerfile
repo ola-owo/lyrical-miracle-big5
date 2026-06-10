@@ -15,8 +15,8 @@ WORKDIR /app
 COPY pyproject.toml pylock.*.toml ./
 RUN uv venv && uv pip sync $PYLOCK
 
-COPY globalvars.py serve.py ./
+COPY ./big5 ./big5
+RUN uv pip install --no-editable .
 
 EXPOSE $AIP_HTTP_PORT
-
 CMD ["uv", "run", "python", "serve.py"]
