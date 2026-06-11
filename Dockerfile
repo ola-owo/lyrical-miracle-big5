@@ -6,17 +6,17 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_CACHE=1 \
-    AIP_HTTP_PORT=8000 \
+    AIP_HTTP_PORT=8080 \
     AIP_PREDICT_ROUTE=/predict \
     AIP_HEALTH_ROUTE=/health
 
 WORKDIR /app
 
-COPY pyproject.toml pylock.*.toml ./
+COPY pyproject.toml $PYLOCK ./
 RUN uv venv && uv pip sync $PYLOCK
 
 COPY ./big5 ./big5
 RUN uv pip install --no-editable .
 
 EXPOSE $AIP_HTTP_PORT
-CMD ["uv", "run", "python", "serve.py"]
+CMD ["uv", "run", "serve"]

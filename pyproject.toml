@@ -3,28 +3,36 @@ name = "lyrical-miracle-big5"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
-    "datasets>=2.19.1",
-    "litserve>=0.2.17",
-    "peft>=0.19.1",
-    "polars>=1.41.2",
-    "sentence-transformers>=5.5.1",
     "torch>=2.12.0",
-    "wandb>=0.27.2",
+    "peft>=0.19.1",
+    "sentence-transformers>=5.5.1",
+    "litserve>=0.2.17",
 ]
 
 [dependency-groups]
 dev = [
+    "fastapi>=0.136.3",
+    "httpx2>=2.3.0",
     "pytest>=9.0.3",
+]
+train = [
+    "polars>=1.41.2",
+    "wandb>=0.27.2",
+    "datasets>=2.19.1",
 ]
 
 [project.scripts]
 serve = "big5.serve:main"
 
-[tool.uv.sources]
-torch = { index = "pytorch" }
+# [tool.uv.sources]
+# torch = { index = "pytorch-gpu" }
 
 [[tool.uv.index]]
-name = "pytorch"
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+
+[[tool.uv.index]]
+name = "pytorch-gpu"
 url = "https://download.pytorch.org/whl/cu132"
 
 [build-system]
