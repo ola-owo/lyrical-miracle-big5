@@ -1,18 +1,12 @@
 import os
 from dataclasses import dataclass
 from typing import Any
+import logging
 
 import litserve as ls
 from sentence_transformers import SentenceTransformer
 
 from big5.globalvars import BIG5_TRAITS, LORA_MODEL
-
-
-@dataclass(frozen=True)
-class VertexPredictionRequest:
-    texts: list[str]
-    include_text: bool
-    normalize_embeddings: bool
 
 
 def _to_bool(value: Any, default: bool = False) -> bool:
@@ -25,11 +19,23 @@ def _to_bool(value: Any, default: bool = False) -> bool:
     return bool(value)
 
 
+DEBUG_MODE = _to_bool(os.getenv('BIG5_DEBUG', False))
+
+@dataclass(frozen=True)
+class VertexPredictionRequest:
+    texts: list[str]
+    include_text: bool
+    normalize_embeddings: bool
+
+
 def _coerce_text(instance: Any) -> str:
+    log = logging.getLogger(__name__)
     if isinstance(instance, str):
         return instance
     if isinstance(instance, dict) and isinstance(instance.get('text'), str):
         return instance['text']
+    if DEBUG_MODE:
+        log.error(f'Invalid instance: {instance}')
     raise ValueError(
         "Each instance must be a string or an object with a string 'text' field."
     )
@@ -45,10 +51,14 @@ class BigFiveAPI(ls.LitAPI):
     def decode_request(
         self, request: dict[str, Any], **kwargs
     ) -> VertexPredictionRequest:
+        log = logging.getLogger(__name__)
         if not isinstance(request, dict):
+            if DEBUG_MODE:
+                log.error(f'Invalid request format: {type(request)}')
             raise ValueError('Request body must be a JSON object.')
 
         instances = request.get('instances')
+        log.info(f'Received instance: {instances}')
         if not isinstance(instances, list) or not instances:
             raise ValueError("Request body must include a non-empty 'instances' array.")
 

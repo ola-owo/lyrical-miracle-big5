@@ -53,30 +53,53 @@ The response shape is:
 
 ## Docker
 
+### Build the image
+
 Build and run the Docker container as usual:
 
 ```bash
-docker buildx build -t lyrical-miracle-big5:latest .
-docker run --rm -p 8080:8080 lyrical-miracle-big5:latest
+docker buildx build -t lyrical-miracle-big5:cpu .
+docker run --rm -p 8080:8080 lyrical-miracle-big5:cpu
 ```
 
-**NOTE:** The default Pytorch includes Cuda 12.6 support.
-If you wish to use the CPU-only version of PyTorch,
-specify `--build-arg UV_INDEX="https://download.pytorch.org/whl/cpu"`.
-Or use any of the other PyTorch package indexes listed on
-[pytorch.org](https://pytorch.org/get-started/locally/)
+**NOTE:** The Dockerfile uses CPU-only Pytorch by default (`pylock.cpu.toml`).
+To build with CUDA support,`--build-arg PYLOCK=pylock.cu13.toml`
+and use the `cu13` tag.
 
+**NOTE:** You may wish to set the environment variable `HF_TOKEN`
+as Hugging Face API key which will enable faster model downloading
+and increased rate limits.
 
-For private Hugging Face models, set the environment variable `HF_TOKEN`
-at runtime with your Hugging Face API key.
+## Google AI Platform
 
-## Vertex AI Settings
+Follow these steps to deploy this model on Google Cloud.
 
-Use these container fields when registering the model:
+### Push to Artifact Registry
+
+Tag the image
+
+```sh
+docker tag lyrical-miracle-big5:cpu $AR_TAG_NAME
+```
+
+where `$AR_TAG_NAME` is the full path of your artifact repository
+(e.g. `us-central1.docker.pkg.dev/my-project/big5-repo`)
+
+Then push the tagged image to GCP:
+
+```sh
+docker push $AR_TAG_NAME
+```
+
+### Deploy the model
+
+Import the container image into Model Registry
+Set these fields:
 
 - `containerSpec.ports.containerPort`: `8080`
 - `containerSpec.predictRoute`: `/predict`
 - `containerSpec.healthRoute`: `/health`
 
-The server also honors Vertex-provided environment variables:
-`AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`, and `AIP_HEALTH_ROUTE`.
+Or set the environment variables:
+`AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`, and `AIP_HEALTH_ROUTE`
+to use non-default values.

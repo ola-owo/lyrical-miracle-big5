@@ -8,7 +8,8 @@ ENV PYTHONUNBUFFERED=1 \
     UV_NO_CACHE=1 \
     AIP_HTTP_PORT=8080 \
     AIP_PREDICT_ROUTE=/predict \
-    AIP_HEALTH_ROUTE=/health
+    AIP_HEALTH_ROUTE=/health \
+    BIG5_DEBUG=0
 
 WORKDIR /app
 
