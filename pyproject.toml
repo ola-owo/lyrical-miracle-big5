@@ -19,6 +19,8 @@ train = [
     "polars>=1.41.2",
     "wandb>=0.27.2",
     "datasets>=2.19.1",
+    "marimo>=0.23.9",
+    "numpy<2.0",
 ]
 
 [project.scripts]
