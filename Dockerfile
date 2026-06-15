@@ -1,13 +1,24 @@
 FROM python:3.13-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-ARG PYLOCK=pylock.cpu.toml
-ENV PYTHONUNBUFFERED=1 \
-    LOGLEVEL=WARNING \
-    UV_COMPILE_BYTECODE=1 \
+ARG TORCH_VERSION=cpu
+ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_CACHE=1 \
     UV_NO_DEFAULT_GROUPS=1 \
+    UV_LOCKED=1
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --extra $TORCH_VERSION --only-install-package torch
+RUN uv sync --extra $TORCH_VERSION --no-install-project
+
+COPY ./big5 ./big5
+RUN uv sync --extra $TORCH_VERSION
+
+ENV PYTHONUNBUFFERED=1 \
+    LOGLEVEL=WARNING \
     AIP_HTTP_PORT=8080 \
     AIP_PREDICT_ROUTE=/predict \
     AIP_HEALTH_ROUTE=/health \
@@ -16,13 +27,5 @@ ENV PYTHONUNBUFFERED=1 \
     BATCH_SIZE=32 \
     INFERENCE_TIMEOUT=60
 
-WORKDIR /app
-
-COPY pyproject.toml $PYLOCK ./
-RUN uv venv && uv pip sync $PYLOCK
-
-COPY ./big5 ./big5
-RUN uv pip install --no-editable .
-
 EXPOSE $AIP_HTTP_PORT
-CMD ["uv", "run", "serve"]
+CMD ["uv", "run", "--no-sync", "serve"]
