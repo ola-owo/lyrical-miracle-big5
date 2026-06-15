@@ -20,6 +20,8 @@ def _to_bool(value: Any, default: bool = False) -> bool:
 
 
 DEBUG_MODE = _to_bool(os.getenv('BIG5_DEBUG', False))
+BATCH_MODE = _to_bool(os.getenv('BATCH_MODE', True))
+
 
 @dataclass(frozen=True)
 class VertexPredictionRequest:
@@ -74,8 +76,8 @@ class BigFiveAPI(ls.LitAPI):
             ),
         )
 
-    def predict(
-        self, request: VertexPredictionRequest, **kwargs
+    def _predict_batch(
+        self, request: VertexPredictionRequest | list[VertexPredictionRequest], **kwargs
     ) -> list[dict[str, Any]]:  # pyright: ignore[reportIncompatibleMethodOverride]
         embeddings = self.model.encode(
             request.texts,
@@ -94,21 +96,37 @@ class BigFiveAPI(ls.LitAPI):
             predictions.append(scores)
         return predictions
 
+    def predict(
+        self, request: VertexPredictionRequest, **kwargs
+    ) -> list[dict[str, Any]]:  # pyright: ignore[reportIncompatibleMethodOverride]
+        if isinstance(request, list):
+            return [self._predict_batch(batch, **kwargs) for batch in request]
+        else:
+            return self._predict_batch(request, **kwargs)
+
     def encode_response(self, output: list[dict[str, Any]], **kwargs) -> dict[str, Any]:
         return {'predictions': output}
 
 
 def main() -> None:
+    log = logging.getLogger(__name__)
     port = int(os.getenv('AIP_HTTP_PORT', os.getenv('PORT', '8000')))
     predict_route = os.getenv('AIP_PREDICT_ROUTE', '/predict')
     health_route = os.getenv('AIP_HEALTH_ROUTE', '/health')
     max_payload_size = int(os.getenv('MAX_PAYLOAD_SIZE', '1500000'))
+    max_batch_size = int(os.getenv('BATCH_SIZE', '32')) if BATCH_MODE else 1
+    if DEBUG_MODE:
+        if BATCH_MODE:
+            log.info(f'Running with batch mode ENABLED (N={max_batch_size})')
+        else:
+            log.info(f'Running with batch mode DISABLED')
 
     server = ls.LitServer(
-        BigFiveAPI(api_path=predict_route),
-        accelerator=os.getenv('ACCELERATOR', 'auto'),  # pyright: ignore[reportArgumentType]
+        BigFiveAPI(api_path=predict_route, max_batch_size=max_batch_size),
+        accelerator=os.getenv('ACCELERATOR', 'auto'),
         healthcheck_path=health_route,
         max_payload_size=max_payload_size,
+        timeout=int(os.getenv('INFERENCE_TIMEOUT', '30')),
     )
     server.run(
         port=port,

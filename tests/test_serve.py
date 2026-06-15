@@ -37,9 +37,9 @@ class FakeSentenceTransformer:
         return outputs
 
 
-@pytest.fixture()
-def api() -> BigFiveAPI:
-    api = BigFiveAPI(api_path='/predict')
+@pytest.fixture(params=[1, 2], ids=['no_batch', 'batch'])
+def api(request) -> BigFiveAPI:
+    api = BigFiveAPI(api_path='/predict', max_batch_size=request.param)
     api.model = FakeSentenceTransformer()  # pyright: ignore[reportAttributeAccessIssue]
     return api
 

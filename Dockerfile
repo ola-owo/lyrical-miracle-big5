@@ -3,13 +3,18 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 ARG PYLOCK=pylock.cpu.toml
 ENV PYTHONUNBUFFERED=1 \
+    LOGLEVEL=WARNING \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_CACHE=1 \
+    UV_NO_DEFAULT_GROUPS=1 \
     AIP_HTTP_PORT=8080 \
     AIP_PREDICT_ROUTE=/predict \
     AIP_HEALTH_ROUTE=/health \
-    BIG5_DEBUG=0
+    BIG5_DEBUG=0 \
+    BATCH_MODE=1 \
+    BATCH_SIZE=32 \
+    INFERENCE_TIMEOUT=60
 
 WORKDIR /app
 
