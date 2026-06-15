@@ -119,7 +119,7 @@ def main() -> None:
         if BATCH_MODE:
             log.info(f'Running with batch mode ENABLED (N={max_batch_size})')
         else:
-            log.info(f'Running with batch mode DISABLED')
+            log.info('Running with batch mode DISABLED')
 
     server = ls.LitServer(
         BigFiveAPI(api_path=predict_route, max_batch_size=max_batch_size),

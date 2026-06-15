@@ -900,10 +900,6 @@ dependencies = [
     { name = "litserve" },
     { name = "peft" },
     { name = "sentence-transformers" },
-    { name = "torch", version = "2.12.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-20-lyrical-miracle-big5-cpu') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cu132')" },
-    { name = "torch", version = "2.12.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cu132') or (extra != 'extra-20-lyrical-miracle-big5-cpu' and extra != 'extra-20-lyrical-miracle-big5-cu132')" },
-    { name = "torch", version = "2.12.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-20-lyrical-miracle-big5-cpu') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cu132')" },
-    { name = "torch", version = "2.12.0+cu132", source = { registry = "https://download.pytorch.org/whl/cu132" }, marker = "extra == 'extra-20-lyrical-miracle-big5-cu132'" },
 ]
 
 [package.optional-dependencies]
@@ -933,7 +929,6 @@ requires-dist = [
     { name = "litserve", specifier = ">=0.2.17" },
     { name = "peft", specifier = ">=0.19.1" },
     { name = "sentence-transformers", specifier = ">=5.5.1" },
-    { name = "torch", specifier = ">=2.12.0" },
     { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.12.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "lyrical-miracle-big5", extra = "cpu" } },
     { name = "torch", marker = "extra == 'cu132'", specifier = ">=2.12.0", index = "https://download.pytorch.org/whl/cu132", conflict = { package = "lyrical-miracle-big5", extra = "cu132" } },
 ]

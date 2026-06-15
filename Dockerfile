@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-ARG TORCH_VERSION=cpu
+ARG TORCH_BACKEND=cpu
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_CACHE=1 \
@@ -11,11 +11,11 @@ ENV UV_COMPILE_BYTECODE=1 \
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --extra $TORCH_VERSION --only-install-package torch
-RUN uv sync --extra $TORCH_VERSION --no-install-project
+RUN uv sync --extra $TORCH_BACKEND --only-install-package torch
+RUN uv sync --extra $TORCH_BACKEND --no-install-project
 
 COPY ./big5 ./big5
-RUN uv sync --extra $TORCH_VERSION
+RUN uv sync --extra $TORCH_BACKEND
 
 ENV PYTHONUNBUFFERED=1 \
     LOGLEVEL=WARNING \
