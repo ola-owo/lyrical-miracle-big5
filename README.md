@@ -14,8 +14,9 @@ and an optional `parameters` field which is a dictionary of extra inference para
 
 Supported `parameters` keys are:
 
-- `include_text`: boolean indicating whether to include the input text in the response
-- `normalize_embeddings`: boolean indicating whether to normalize outputs to have a norm of 1
+- `normalize_embeddings`: boolean indicating whether to normalize outputs to have a norm of 1 (default `false`)
+- `include_text`: boolean indicating whether to include the input text in the response (default `false`)
+- `include_traits`: output a JSON object with trait labels if `true`, or an array without labels if `false` (default `true`)
 
 Example request:
 
@@ -41,11 +42,13 @@ The response shape is:
   "predictions": [
     {
       "text": "I love meeting new people.",
-      "Openness": 0.0,
-      "Conscientiousness": 0.0,
-      "Extraversion": 0.0,
-      "Agreeableness": 0.0,
-      "Neuroticism": 0.0
+      "prediction": {
+        "OPN": 0.0,
+        "CON": 0.0,
+        "EXT": 0.0,
+        "AGR": 0.0,
+        "NEU": 0.0
+      }
     }
   ]
 }

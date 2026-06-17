@@ -6,7 +6,7 @@ import logging
 import litserve as ls
 from sentence_transformers import SentenceTransformer
 
-from big5.globalvars import BIG5_TRAITS, LORA_MODEL
+from big5.globalvars import BIG5_TRAITS_SHORT, LORA_MODEL
 
 
 def _to_bool(value: Any, default: bool = False) -> bool:
@@ -27,6 +27,7 @@ BATCH_MODE = _to_bool(os.getenv('BATCH_MODE', True))
 class VertexPredictionRequest:
     texts: list[str]
     include_text: bool
+    include_traits: bool
     normalize_embeddings: bool
 
 
@@ -71,6 +72,7 @@ class BigFiveAPI(ls.LitAPI):
         return VertexPredictionRequest(
             texts=[_coerce_text(instance) for instance in instances],
             include_text=_to_bool(parameters.get('include_text'), default=False),
+            include_traits=_to_bool(parameters.get('include_traits'), default=True),
             normalize_embeddings=_to_bool(
                 parameters.get('normalize_embeddings'), default=False
             ),
@@ -87,12 +89,14 @@ class BigFiveAPI(ls.LitAPI):
 
         predictions: list[dict[str, Any]] = []
         for text, embedding in zip(request.texts, embeddings, strict=True):
-            scores = {
-                trait: float(score)
-                for trait, score in zip(BIG5_TRAITS, embedding.tolist(), strict=True)
-            }
+            scores = [float(score) for score in embedding.tolist()]
+            if request.include_traits:
+                scores = {
+                    trait: float(score)
+                    for trait, score in zip(BIG5_TRAITS_SHORT, scores, strict=True)
+                }
             if request.include_text:
-                scores = {'text': text, **scores}
+                scores = {'text': text, 'prediction': scores}
             predictions.append(scores)
         return predictions
 

@@ -6,7 +6,7 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from big5.globalvars import BIG5_TRAITS
+from big5.globalvars import BIG5_TRAITS_SHORT
 from big5.serve import BigFiveAPI
 
 
@@ -27,7 +27,7 @@ class FakeSentenceTransformer:
         normalize_embeddings: bool = False,
     ) -> list[FakeEmbedding]:
         assert convert_to_numpy
-        n_traits = len(BIG5_TRAITS)
+        n_traits = len(BIG5_TRAITS_SHORT)
         outputs = [
             FakeEmbedding([10 * i + trait_index for trait_index in range(n_traits)])
             for i in range(len(texts))
@@ -88,18 +88,18 @@ def test_predict_accepts_string_instances(client: TestClient) -> None:
     assert response.json() == {
         'predictions': [
             {
-                'Openness': 0,
-                'Conscientiousness': 1,
-                'Extraversion': 2,
-                'Agreeableness': 3,
-                'Neuroticism': 4,
+                'OPN': 0,
+                'CON': 1,
+                'EXT': 2,
+                'AGR': 3,
+                'NEU': 4,
             },
             {
-                'Openness': 10,
-                'Conscientiousness': 11,
-                'Extraversion': 12,
-                'Agreeableness': 13,
-                'Neuroticism': 14,
+                'OPN': 10,
+                'CON': 11,
+                'EXT': 12,
+                'AGR': 13,
+                'NEU': 14,
             },
         ]
     }
@@ -118,13 +118,15 @@ def test_predict_accepts_text_object_instances_and_include_text(
     )
 
     assert response.status_code == 200
-    predictions = response.json()['predictions']
+    response_json = response.json()
+    predictions = response_json['predictions']
     for text, pred in zip(input_texts, predictions):
+        assert set(pred.keys()) == {'text', 'prediction'}
         assert pred['text'] == text
-        assert set(pred.keys()) == set(BIG5_TRAITS + ['text'])
+        assert set(pred['prediction'].keys()) == set(BIG5_TRAITS_SHORT)
 
 
-def test_predict_honors_normalize_embeddings_parameter(client: TestClient) -> None:
+def test_predict_normalize_embeddings(client: TestClient) -> None:
     response = client.post(
         '/predict',
         json={
@@ -137,11 +139,48 @@ def test_predict_honors_normalize_embeddings_parameter(client: TestClient) -> No
     assert response.status_code == 200
     assert response.json()['predictions'] == [
         {
-            'Openness': pytest.approx(0 / vec_sum),
-            'Conscientiousness': pytest.approx(1 / vec_sum),
-            'Extraversion': pytest.approx(2 / vec_sum),
-            'Agreeableness': pytest.approx(3 / vec_sum),
-            'Neuroticism': pytest.approx(4 / vec_sum),
+            'OPN': pytest.approx(0 / vec_sum),
+            'CON': pytest.approx(1 / vec_sum),
+            'EXT': pytest.approx(2 / vec_sum),
+            'AGR': pytest.approx(3 / vec_sum),
+            'NEU': pytest.approx(4 / vec_sum),
+        }
+    ]
+
+
+def test_predict_no_include_traits_no_include_text(
+    client: TestClient,
+) -> None:
+    input_texts = ['bold and brash']
+    response = client.post(
+        '/predict',
+        json={
+            'instances': [{'text': text} for text in input_texts],
+            'parameters': {'include_traits': False},
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()['predictions'] == [[0, 1, 2, 3, 4]]
+
+
+def test_predict_no_include_traits_include_text(
+    client: TestClient,
+) -> None:
+    input_texts = ['bold and brash']
+    response = client.post(
+        '/predict',
+        json={
+            'instances': [{'text': text} for text in input_texts],
+            'parameters': {'include_text': True, 'include_traits': False},
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()['predictions'] == [
+        {
+            'text': input_texts[0],
+            'prediction': [0, 1, 2, 3, 4],
         }
     ]
 

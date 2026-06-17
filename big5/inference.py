@@ -4,7 +4,7 @@
 import polars as pl
 from sentence_transformers import SentenceTransformer
 
-from globalvars import BIG5_TRAITS, LORA_MODEL
+from globalvars import BIG5_TRAITS_SHORT, LORA_MODEL
 
 # huggingface_hub.login()
 model = SentenceTransformer(LORA_MODEL)
@@ -20,7 +20,7 @@ test_samples = [
 
 embeddings = model.encode(test_samples)
 
-results_df = pl.DataFrame(embeddings, schema=BIG5_TRAITS)
+results_df = pl.DataFrame(embeddings, schema=BIG5_TRAITS_SHORT)
 results_df = results_df.insert_column(0, pl.Series('text', test_samples))
 
 print(results_df)
