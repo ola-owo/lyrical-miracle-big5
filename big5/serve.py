@@ -1,47 +1,41 @@
 import os
-from dataclasses import dataclass
 from typing import Any
 import logging
 
 import litserve as ls
 from sentence_transformers import SentenceTransformer
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    RootModel,
+    Field,
+    TypeAdapter,
+    model_validator,
+)
 
 from big5.globalvars import BIG5_TRAITS_SHORT, LORA_MODEL
 
+bool_adapter = TypeAdapter(bool)
 
-def _to_bool(value: Any, default: bool = False) -> bool:
-    if value is None:
-        return default
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.lower() in {'1', 'true', 'yes', 'y', 'on'}
-    return bool(value)
+DEBUG_MODE = bool_adapter.validate_python(os.getenv('BIG5_DEBUG', False))
+BATCH_MODE = bool_adapter.validate_python(os.getenv('BATCH_MODE', True))
 
 
-DEBUG_MODE = _to_bool(os.getenv('BIG5_DEBUG', False))
-BATCH_MODE = _to_bool(os.getenv('BATCH_MODE', True))
+class RequestText(RootModel[str]):
+    @model_validator(mode='before')
+    @classmethod
+    def extract_str(cls, text):
+        if isinstance(text, dict) and 'text' in text:
+            return text['text']
+        return text
 
 
-@dataclass(frozen=True)
-class VertexPredictionRequest:
-    texts: list[str]
-    include_text: bool
-    include_traits: bool
-    normalize_embeddings: bool
-
-
-def _coerce_text(instance: Any) -> str:
-    log = logging.getLogger(__name__)
-    if isinstance(instance, str):
-        return instance
-    if isinstance(instance, dict) and isinstance(instance.get('text'), str):
-        return instance['text']
-    if DEBUG_MODE:
-        log.error(f'Invalid instance: {instance}')
-    raise ValueError(
-        "Each instance must be a string or an object with a string 'text' field."
-    )
+class VertexPredictionRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, extra='forbid')
+    texts: list[RequestText] = Field(min_length=1)
+    include_text: bool = False
+    include_traits: bool = True
+    normalize_embeddings: bool = False
 
 
 class BigFiveAPI(ls.LitAPI):
@@ -60,7 +54,7 @@ class BigFiveAPI(ls.LitAPI):
                 log.error(f'Invalid request format: {type(request)}')
             raise ValueError('Request body must be a JSON object.')
 
-        instances = request.get('instances')
+        instances = request.get('instances', [])
         log.info(f'Received instance: {instances}')
         if not isinstance(instances, list) or not instances:
             raise ValueError("Request body must include a non-empty 'instances' array.")
@@ -69,14 +63,7 @@ class BigFiveAPI(ls.LitAPI):
         if not isinstance(parameters, dict):
             raise ValueError("'parameters' must be a JSON object when provided.")
 
-        return VertexPredictionRequest(
-            texts=[_coerce_text(instance) for instance in instances],
-            include_text=_to_bool(parameters.get('include_text'), default=False),
-            include_traits=_to_bool(parameters.get('include_traits'), default=True),
-            normalize_embeddings=_to_bool(
-                parameters.get('normalize_embeddings'), default=False
-            ),
-        )
+        return VertexPredictionRequest(texts=instances, **parameters)
 
     def _predict_batch(
         self, request: VertexPredictionRequest | list[VertexPredictionRequest], **kwargs

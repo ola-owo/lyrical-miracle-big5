@@ -2,12 +2,13 @@ from collections.abc import Iterator
 from typing import Any
 
 import litserve as ls
+from pydantic import ValidationError
 import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
 from big5.globalvars import BIG5_TRAITS_SHORT
-from big5.serve import BigFiveAPI
+from big5.serve import BigFiveAPI, VertexPredictionRequest
 
 
 class FakeEmbedding(list[float]):
@@ -186,20 +187,45 @@ def test_predict_no_include_traits_include_text(
 
 
 @pytest.mark.parametrize(
+    ('instances', 'parameters', 'err_type', 'err_field'),
+    [
+        ([], {}, 'too_short', 'texts'),
+        ({'body': 'missing text'}, {}, 'list_type', 'texts'),
+        (['ok'], {'x': 'unknown'}, 'extra_forbidden', 'x'),
+        (['ok'], {'include_text': 'yeah'}, 'bool_parsing', 'include_text'),
+    ],
+)
+def test_predict_pydantic_validation(
+    instances: list,
+    parameters: dict,
+    err_type: str,
+    err_field: str,
+) -> None:
+
+    with pytest.raises(ValidationError) as exc:
+        VertexPredictionRequest(texts=instances, **parameters)
+        assert exc.error_count() == 1
+        e = exc.errors()[0]
+        assert e['type'] == err_type
+        assert err_field in e['loc']
+
+
+@pytest.mark.parametrize(
     ('payload', 'expected_detail'),
     [
         ({}, "Request body must include a non-empty 'instances' array."),
-        ({'instances': []}, "Request body must include a non-empty 'instances' array."),
-        ({'instances': [{'body': 'missing text'}]}, 'Each instance must be a string'),
+        (
+            {'instances': ['ok'], 'parameters': None},
+            "'parameters' must be a JSON object",
+        ),
         ({'instances': ['ok'], 'parameters': []}, "'parameters' must be a JSON object"),
     ],
 )
-def test_predict_rejects_invalid_vertex_payloads(
+def test_predict_bad_payload_fields(
     client: TestClient,
     payload: dict[str, object],
     expected_detail: str,
 ) -> None:
     response = client.post('/predict', json=payload)
-
     assert response.status_code == 400
     assert expected_detail in response.text

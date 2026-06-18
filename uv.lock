@@ -894,11 +894,12 @@ wheels = [
 
 [[package]]
 name = "lyrical-miracle-big5"
-version = "0.6.0"
+version = "0.7.0"
 source = { editable = "." }
 dependencies = [
     { name = "litserve" },
     { name = "peft" },
+    { name = "pydantic" },
     { name = "sentence-transformers" },
 ]
 
@@ -915,11 +916,11 @@ cu132 = [
 dev = [
     { name = "fastapi" },
     { name = "httpx2" },
+    { name = "marimo" },
     { name = "pytest" },
 ]
 train = [
     { name = "datasets" },
-    { name = "marimo" },
     { name = "polars" },
     { name = "wandb" },
 ]
@@ -928,6 +929,7 @@ train = [
 requires-dist = [
     { name = "litserve", specifier = ">=0.2.17" },
     { name = "peft", specifier = ">=0.19.1" },
+    { name = "pydantic", specifier = ">=2.13.4" },
     { name = "sentence-transformers", specifier = ">=5.5.1" },
     { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.12.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "lyrical-miracle-big5", extra = "cpu" } },
     { name = "torch", marker = "extra == 'cu132'", specifier = ">=2.12.0", index = "https://download.pytorch.org/whl/cu132", conflict = { package = "lyrical-miracle-big5", extra = "cu132" } },
@@ -938,11 +940,11 @@ provides-extras = ["cpu", "cu132"]
 dev = [
     { name = "fastapi", specifier = ">=0.136.3" },
     { name = "httpx2", specifier = ">=2.3.0" },
+    { name = "marimo", specifier = ">=0.23.9" },
     { name = "pytest", specifier = ">=9.0.3" },
 ]
 train = [
     { name = "datasets", specifier = ">=2.19.1" },
-    { name = "marimo", specifier = ">=0.23.9" },
     { name = "polars", specifier = ">=1.41.2" },
     { name = "wandb", specifier = ">=0.27.2" },
 ]
