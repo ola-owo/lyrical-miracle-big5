@@ -13,7 +13,7 @@ from pydantic import (
     model_validator,
 )
 
-from big5.globalvars import BIG5_TRAITS_SHORT, LORA_MODEL
+from big5.globalvars import BIG5_TRAITS_SHORT, MODEL
 
 bool_adapter = TypeAdapter(bool)
 
@@ -43,7 +43,7 @@ class BigFiveAPI(ls.LitAPI):
         super().__init__(**kwargs)
 
     def setup(self, device: str) -> None:
-        self.model = SentenceTransformer(LORA_MODEL, device=str(device))
+        self.model = SentenceTransformer(MODEL, device=str(device))
 
     def decode_request(
         self, request: dict[str, Any], **kwargs

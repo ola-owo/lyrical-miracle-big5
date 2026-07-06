@@ -4,7 +4,7 @@
 
 - `inference.py` loads the configured SentenceTransformer model and prints trait scores for sample text.
 - `globalvars.py` centralizes Hugging Face IDs, model names, W&B project names, and Big Five trait labels.
-- `train_big5_bert_st.ipynb` contains the training workflow and experimentation notes.
+- `train.py` contains the training workflow and experimentation notes.
 - `pyproject.toml` and `uv.lock` define the Python 3.13 environment and pinned dependencies.
 - Secrets such as `keys.env` are ignored. Do not commit environment files, tokens, caches, or generated model artifacts.
 
@@ -14,7 +14,7 @@ No dedicated package directory or test directory exists yet. If the project grow
 
 - `uv sync` installs the locked project dependencies into the local virtual environment.
 - `uv run python inference.py` runs the current inference smoke test against `LORA_MODEL`.
-- `uv run jupyter lab` opens the notebook workflow, if Jupyter is installed.
+- `uv run marimo edit` opens the notebook workflow, if Jupyter is installed.
 - `uv add <package>` adds a runtime dependency and updates `pyproject.toml` plus `uv.lock`.
 
 There is no build step at present; this repository is script/notebook driven.

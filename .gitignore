@@ -1,6 +1,11 @@
 .codex/
 **/*.env
 data/
+models/
+
+# training files
+wandb/
+param_sweep_results/
 
 # Gitignore template below copied from:
 # https://github.com/github/gitignore/blob/main/Python.gitignore

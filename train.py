@@ -4,10 +4,18 @@
 #     "numpy>=1.26.0,<2.0",
 # ]
 # ///
+
 import marimo
 
-__generated_with = '0.23.9'
-app = marimo.App(width='medium')
+__generated_with = "0.23.13"
+app = marimo.App(width="medium")
+
+
+@app.cell
+def _():
+    import marimo as mo
+
+    return (mo,)
 
 
 @app.cell(hide_code=True)
@@ -42,23 +50,21 @@ def _():
 
     from big5.globalvars import (
         HF_DATASET,
-        BASE_MODEL,
-        LORA_MODEL_NAME,
+        HF_USER,
         MODEL,
-        LORA_MODEL,
+        MODEL_NAME,
         WANDB_PROJECT,
         BIG5_TRAITS,
     )
 
     return (
-        BASE_MODEL,
         BIG5_TRAITS,
         Dense,
         HF_DATASET,
-        LORA_MODEL,
-        LORA_MODEL_NAME,
+        HF_USER,
         LoraConfig,
         MODEL,
+        MODEL_NAME,
         Pooling,
         SentenceTransformer,
         SentenceTransformerModelCardData,
@@ -169,11 +175,19 @@ def _(BIG5_TRAITS, HF_DATASET, cs, load_dataset, pl):
     return ds, ds_with_nans
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    # Build model
+    """)
+    return
+
+
 @app.cell
 def _(
-    BASE_MODEL,
     Dense,
     HF_DATASET,
+    HF_USER,
     MODEL,
     Pooling,
     SentenceTransformer,
@@ -181,10 +195,10 @@ def _(
     Transformer,
     nn,
 ):
-    def build_model(peft_config=None):
+    def build_model_from_tf(model_name, peft_config=None):
         """Instantiate a new untrained model"""
         # Start with the pretrained base model (DistilBERT)
-        word_embedding_module = Transformer(BASE_MODEL, max_seq_length=512)
+        word_embedding_module = Transformer(model_name, max_seq_length=512)
 
         # Add a pooling layer
         # 'cls' pooling uses the CLS token which is the last hidden state's 1st token
@@ -204,7 +218,9 @@ def _(
             model_card_data=SentenceTransformerModelCardData(
                 language=['en', 'es'],
                 model_name='distilBERT-based Big-5 personality scorer',
-                model_id=MODEL,
+                # model_id=MODEL,
+                model_id=f'{HF_USER}/big5-distilbert-lora',
+                base_model=model_name,
                 train_datasets=[{'id': HF_DATASET}],
                 eval_datasets=[{'id': HF_DATASET}],
                 task_name='feature extraction',
@@ -215,6 +231,42 @@ def _(
             model.add_adapter(peft_config)
         return model
 
+
+    def build_model_from_st(base_model, model_id=None, peft_config=None):
+        base = SentenceTransformer(base_model)
+        dense = Dense(
+            in_features=base.get_embedding_dimension(),
+            out_features=5,
+            activation_function=nn.Identity(),  # Logits are returned directly
+        )
+        model = SentenceTransformer(
+            modules=[base, dense],
+            model_card_data=SentenceTransformerModelCardData(
+                language=['en', 'es'],
+                model_name=f'Big-5 personality scorer based on {base_model}',
+                model_id=MODEL,
+                base_model=base_model,
+                train_datasets=[{'id': HF_DATASET}],
+                eval_datasets=[{'id': HF_DATASET}],
+                task_name='feature extraction',
+                tags=['feature-extraction'],
+            )
+        )
+        if peft_config:
+            model.add_adapter(peft_config)
+        return model
+
+
+    def build_model(base_model: str, **kwargs):
+        TF_MODELS = ('distilbert/distilbert-base-multilingual-cased', )
+        ST_MODELS = ('google/embeddinggemma-300m', 'microsoft/harrier-oss-v1-0.6b')
+        if base_model in TF_MODELS:
+            return build_model_from_tf(base_model, **kwargs)
+        elif base_model in ST_MODELS:
+            return build_model_from_st(base_model, **kwargs)
+        else:
+            raise ValueError(f'not sure if "{base_model}" is a Transformer or Sentence Transformer')
+
     return (build_model,)
 
 
@@ -224,7 +276,6 @@ def _(SentenceTransformer, nn, torch):
         def __init__(self, model: SentenceTransformer):
             super(MultiLabelBCEWithLogitsLoss, self).__init__()
             self.model = model
-            # self.criterion = nn.BCEWithLogitsLoss()
             self.criterion = nn.BCEWithLogitsLoss(reduction='none')
 
         def forward(
@@ -236,8 +287,6 @@ def _(SentenceTransformer, nn, torch):
             logits = outputs['sentence_embedding']
 
             # labels expected shape: (batch_size, 5)
-            # return self.criterion(logits, labels.float())
-            # return self.criterion(logits, labels.float()).nanmean()
             return self.criterion(
                 logits[labels >= 0], labels[labels >= 0].float()
             ).nanmean()
@@ -263,12 +312,13 @@ def _(mo):
 
 @app.cell
 def _(
-    WANDB_PROJECT,
     LoraConfig,
     MultiLabelBCEWithLogitsLoss,
     SentenceTransformerTrainer,
     SentenceTransformerTrainingArguments,
     TaskType,
+    WANDB_PROJECT,
+    base_model,
     build_model,
     ds,
     ds_with_nans,
@@ -279,35 +329,50 @@ def _(
         'method': 'bayes',
         'metric': {'name': 'eval/loss', 'goal': 'minimize'},
         'parameters': {
-            'r': {'values': [16, 32, 64, 128]},
-            'lora_alpha': {'values': [32, 64, 128, 256]},
-            'lora_dropout': {'values': [0.0, 0.05, 0.1]},
+            'r': {'values': [16, 32, 64, 128, 256]},
+            'lora_alpha': {'values': [32, 64, 128, 256, 512]},
+            'lora_dropout': {
+                'distribution': 'uniform',
+                'min': 0.0,
+                'max': 0.2,
+            },
             'learning_rate': {
                 'distribution': 'log_uniform_values',
                 'min': 1e-5,
-                'max': 3e-3,
+                'max': 1e-3,
             },
             'target_modules': {
                 # all-linear is supposedly better (thinkingmachines.ai/blog/lora/)
                 # but trying both methods anyway
-                'values': ['attention_only', 'all-linear']
+                'values': ['all-linear']
+                # 'values': ['attention_only', 'all-linear']
             },
-            'dataset': {'values': ['orig', 'nans']},
+            'dataset': {'values': ['nans']},
+            # 'dataset': {'values': ['orig', 'nans']},
+            'base_model': {'values': [
+                'distilbert/distilbert-base-multilingual-cased',
+                'google/embeddinggemma-300m',
+                'microsoft/harrier-oss-v1-0.6b',
+            ]},
         },
     }
 
     def sweep_params():
-        # Initialize the sweep run
         with wandb.init():
             config = wandb.config
-            config_modules = (
-                ['q_lin', 'k_lin', 'v_lin', 'out_lin']
-                if config.target_modules == 'attention_only'
-                else 'all-linear'
-            )
             config_ds = ds if config.dataset == 'orig' else ds_with_nans
+            if config.target_modules == 'attention_only':
+                if config.base_model == 'distilbert/distilbert-base-multilingual-cased':
+                    config_modules = ['q_lin', 'k_lin', 'v_lin', 'out_lin']
+                elif config.base_model in ('google/embeddinggemma-300m', 'microsoft/harrier-oss-v1-0.6b'):
+                    config_modules = ['k_proj', 'o_proj', 'q_proj', 'v_proj']
+                else:
+                    raise ValueError(f'unknown model: {base_model}')
+            else:
+                config_modules = 'all-linear'
 
             model = build_model(
+                config.base_model,
                 peft_config=LoraConfig(
                     task_type=TaskType.FEATURE_EXTRACTION,
                     r=config.r,
@@ -386,8 +451,8 @@ def _(mo):
 
 @app.cell
 def _(
-    LORA_MODEL_NAME,
     LoraConfig,
+    MODEL_NAME,
     MultiLabelBCEWithLogitsLoss,
     SentenceTransformerTrainer,
     SentenceTransformerTrainingArguments,
@@ -397,6 +462,7 @@ def _(
     trainer_ds,
 ):
     model = build_model(
+        train_config['base_model'],
         peft_config=LoraConfig(
             task_type=TaskType.FEATURE_EXTRACTION,
             r=train_config['lora_r'],
@@ -407,19 +473,16 @@ def _(
     )
 
     trainer_args = SentenceTransformerTrainingArguments(
-        num_train_epochs=10,
-        per_device_train_batch_size=64,
-        per_device_eval_batch_size=64,
+        num_train_epochs=20,
+        auto_find_batch_size=True,
         warmup_steps=0.1,
         learning_rate=train_config['learning_rate'],
         metric_for_best_model='eval_loss',
         report_to='wandb',
-        hub_revision='v2',
         logging_strategy='epoch',
         eval_strategy='epoch',
         save_strategy='best',
-        output_dir=LORA_MODEL_NAME,
-        run_name=LORA_MODEL_NAME,  # Will be used in W&B if `wandb` is installed
+        output_dir=MODEL_NAME,
     )
 
     trainer = SentenceTransformerTrainer(
@@ -450,10 +513,10 @@ def _(mo):
 
 
 @app.cell
-def _(LORA_MODEL_NAME, model, trainer):
-    model.save_pretrained(LORA_MODEL_NAME)
+def _(MODEL_NAME, model, trainer):
+    model.save_pretrained(MODEL_NAME)
     trainer.push_to_hub(
-        commit_message='End of training (new dset with nans)', revision='main'
+        commit_message='End of training (switch to gemma3 base model)', revision='main'
     )
     return
 
@@ -467,9 +530,9 @@ def _(mo):
 
 
 @app.cell
-def _(LORA_MODEL, SentenceTransformer):
+def _(MODEL, SentenceTransformer):
     def load_lora():
-        model = SentenceTransformer(LORA_MODEL)
+        model = SentenceTransformer(MODEL)
         return model
 
     return
@@ -493,6 +556,7 @@ def _(BIG5_TRAITS, model, pl):
         "I'll try anything once ;)'",
         "I'm very opinionated and like to argue with others",
         'I prefer cozy cafes over loud clubs',
+        'Where the party at?!'
     ]
 
     def test_inference(samples):
@@ -505,5 +569,5 @@ def _(BIG5_TRAITS, model, pl):
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
