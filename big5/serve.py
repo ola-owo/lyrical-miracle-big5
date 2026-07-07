@@ -68,14 +68,15 @@ class BigFiveAPI(ls.LitAPI):
     def _predict_batch(
         self, request: VertexPredictionRequest | list[VertexPredictionRequest], **kwargs
     ) -> list[dict[str, Any]]:  # pyright: ignore[reportIncompatibleMethodOverride]
+        texts = [t.root for t in request.texts]
         embeddings = self.model.encode(
-            request.texts,
+            texts,
             convert_to_numpy=True,
             normalize_embeddings=request.normalize_embeddings,
         )
 
         predictions: list[dict[str, Any]] = []
-        for text, embedding in zip(request.texts, embeddings, strict=True):
+        for text, embedding in zip(texts, embeddings, strict=True):
             scores = [float(score) for score in embedding.tolist()]
             if request.include_traits:
                 scores = {
