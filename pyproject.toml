@@ -1,10 +1,11 @@
 [project]
 name = "lyrical-miracle-big5"
-version = "0.7.0"
+version = "0.8.0"
 requires-python = ">=3.13"
 dependencies = [
     "peft>=0.19.1",
-    "sentence-transformers>=5.5.1",
+    "sentence-transformers>=5.6.0",
+    "transformers<5.13.0", # adapter loading broken with 5.13.0 and peft 0.19
     "litserve>=0.2.17",
     "pydantic>=2.13.4",
 ]
@@ -15,16 +16,25 @@ cuda = ["torch>=2.12.0"]
 
 [dependency-groups]
 dev = [
-    "fastapi>=0.136.3",
-    "httpx2>=2.3.0",
-    "pytest>=9.0.3",
-    "marimo>=0.23.9",
+    { include-group = "train" },
+    { include-group = "test" },
+    { include-group = "ai" },
 ]
 train = [
+    "marimo>=0.23.9",
     "polars>=1.41.2",
     "wandb>=0.27.2",
     "datasets>=2.19.1",
     "ipython>=9.15.0",
+]
+test = [
+    "fastapi>=0.136.3",
+    "httpx2>=2.3.0",
+    "pytest>=9.0.3",
+]
+ai = [
+    "mcp>=1.28.1",
+    "pydantic-ai>=2.5.0",
 ]
 
 [project.scripts]

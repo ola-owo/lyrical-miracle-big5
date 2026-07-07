@@ -195,65 +195,61 @@ def _(
     Transformer,
     nn,
 ):
-    def build_model_from_tf(model_name, peft_config=None):
+    def build_model_from_tf(base_model, peft_config=None):
         """Instantiate a new untrained model"""
-        # Start with the pretrained base model (DistilBERT)
-        word_embedding_module = Transformer(model_name, max_seq_length=512)
+        word_embedding_module = Transformer(base_model, max_seq_length=512)
 
-        # Add a pooling layer
-        # 'cls' pooling uses the CLS token which is the last hidden state's 1st token
         pooling_module = Pooling(
             word_embedding_module.get_embedding_dimension(), pooling_mode='cls'
         )
 
-        # Add a dense layer that outputs a size-5 vector
         dense_module = Dense(
             in_features=word_embedding_module.get_embedding_dimension(),
             out_features=5,
-            activation_function=nn.Identity(),  # Logits are returned directly
+            activation_function=nn.Identity(),
         )
 
         model = SentenceTransformer(
             modules=[word_embedding_module, pooling_module, dense_module],
             model_card_data=SentenceTransformerModelCardData(
                 language=['en', 'es'],
-                model_name='distilBERT-based Big-5 personality scorer',
-                # model_id=MODEL,
+                model_name=f'Big-5 personality scorer based on {base_model}',
                 model_id=f'{HF_USER}/big5-distilbert-lora',
-                base_model=model_name,
+                base_model=base_model,
                 train_datasets=[{'id': HF_DATASET}],
                 eval_datasets=[{'id': HF_DATASET}],
                 task_name='feature extraction',
                 tags=['feature-extraction'],
             ),
         )
+        # model_card_data.set_base_model(base_model)
+
         if peft_config:
             model.add_adapter(peft_config)
+
         return model
 
 
     def build_model_from_st(base_model, model_id=None, peft_config=None):
-        base = SentenceTransformer(base_model)
-        dense = Dense(
-            in_features=base.get_embedding_dimension(),
+        model_card_data = SentenceTransformerModelCardData(
+            language=['en', 'es'],
+            model_name='lora-finetuned test model',
+            model_id=MODEL,
+            train_datasets=[{'id': HF_DATASET}],
+            eval_datasets=[{'id': HF_DATASET}],
+            task_name='feature extraction',
+            tags=['feature-extraction'],
+        )
+
+        model = SentenceTransformer(base_model, model_card_data=model_card_data)
+        model.append(Dense(
+            in_features=model.get_embedding_dimension(),
             out_features=5,
-            activation_function=nn.Identity(),  # Logits are returned directly
-        )
-        model = SentenceTransformer(
-            modules=[base, dense],
-            model_card_data=SentenceTransformerModelCardData(
-                language=['en', 'es'],
-                model_name=f'Big-5 personality scorer based on {base_model}',
-                model_id=MODEL,
-                base_model=base_model,
-                train_datasets=[{'id': HF_DATASET}],
-                eval_datasets=[{'id': HF_DATASET}],
-                task_name='feature extraction',
-                tags=['feature-extraction'],
-            )
-        )
+            activation_function=nn.Identity(),
+        ))
         if peft_config:
             model.add_adapter(peft_config)
+        # model.model_card_data = model_card_data
         return model
 
 
@@ -329,8 +325,8 @@ def _(
         'method': 'bayes',
         'metric': {'name': 'eval/loss', 'goal': 'minimize'},
         'parameters': {
-            'r': {'values': [16, 32, 64, 128, 256]},
-            'lora_alpha': {'values': [32, 64, 128, 256, 512]},
+            'lora_r': {'values': [16, 32, 64, 128]},
+            'lora_alpha': {'values': [32, 64, 128, 256]},
             'lora_dropout': {
                 'distribution': 'uniform',
                 'min': 0.0,
@@ -339,20 +335,19 @@ def _(
             'learning_rate': {
                 'distribution': 'log_uniform_values',
                 'min': 1e-5,
-                'max': 1e-3,
+                'max': 1e-4,
             },
             'target_modules': {
                 # all-linear is supposedly better (thinkingmachines.ai/blog/lora/)
-                # but trying both methods anyway
                 'values': ['all-linear']
                 # 'values': ['attention_only', 'all-linear']
             },
             'dataset': {'values': ['nans']},
             # 'dataset': {'values': ['orig', 'nans']},
             'base_model': {'values': [
-                'distilbert/distilbert-base-multilingual-cased',
+                # 'distilbert/distilbert-base-multilingual-cased',
                 'google/embeddinggemma-300m',
-                'microsoft/harrier-oss-v1-0.6b',
+                # 'microsoft/harrier-oss-v1-0.6b',
             ]},
         },
     }
@@ -375,7 +370,7 @@ def _(
                 config.base_model,
                 peft_config=LoraConfig(
                     task_type=TaskType.FEATURE_EXTRACTION,
-                    r=config.r,
+                    r=config.lora_r,
                     lora_alpha=config.lora_alpha,
                     lora_dropout=config.lora_dropout,
                     target_modules=config_modules,
@@ -385,14 +380,14 @@ def _(
             trainer_args = SentenceTransformerTrainingArguments(
                 output_dir='param_sweep_results',
                 learning_rate=config.learning_rate,
-                num_train_epochs=1,
+                num_train_epochs=3,
                 per_device_train_batch_size=64,
                 per_device_eval_batch_size=64,
-                eval_strategy='steps',
-                eval_steps=0.5,
+                eval_strategy='epoch',
+                # eval_steps=0.5,
                 logging_steps=0.2,
-                report_to='wandb',  # Turn W&B logging ON
-                run_name=wandb.run.name,  # Sync HF run name with W&B UI # ty:ignore[unresolved-attribute]
+                report_to='wandb',
+                run_name=wandb.run.name,  # Sync HF run name with W&B UI
             )
 
             trainer = SentenceTransformerTrainer(
@@ -411,7 +406,7 @@ def _(
     # Initialize and run the sweep experiment
     # adjust count based on alloted compute time
     sweep_id = wandb.sweep(sweep_config, project=WANDB_PROJECT)
-    wandb.agent(sweep_id, function=sweep_params, count=20)
+    wandb.agent(sweep_id, function=sweep_params, count=10)
     return sweep_config, sweep_id
 
 
@@ -434,7 +429,6 @@ def _(WANDB_PROJECT, ds, ds_with_nans, sweep_config, sweep_id, wandb):
     train_config = {
         k: v for k, v in best_config.items() if k in sweep_config['parameters']
     }
-    train_config['lora_r'] = train_config.pop('r')
     trainer_ds = ds_with_nans if train_config['dataset'] == 'nans' else ds
 
     train_config
@@ -460,6 +454,7 @@ def _(
     build_model,
     train_config,
     trainer_ds,
+    wandb,
 ):
     model = build_model(
         train_config['base_model'],
@@ -492,7 +487,8 @@ def _(
         eval_dataset=trainer_ds['test'],
         loss=MultiLabelBCEWithLogitsLoss(model),
     )
-    trainer.train()
+    with wandb.init(reinit='finish_previous'):
+        trainer.train()
     return model, trainer
 
 
@@ -514,7 +510,7 @@ def _(mo):
 
 @app.cell
 def _(MODEL_NAME, model, trainer):
-    model.save_pretrained(MODEL_NAME)
+    model.save_pretrained(f'models/{MODEL_NAME}')
     trainer.push_to_hub(
         commit_message='End of training (switch to gemma3 base model)', revision='main'
     )
@@ -531,11 +527,11 @@ def _(mo):
 
 @app.cell
 def _(MODEL, SentenceTransformer):
-    def load_lora():
+    def load_model():
         model = SentenceTransformer(MODEL)
         return model
 
-    return
+    return (load_model,)
 
 
 @app.cell(hide_code=True)
@@ -547,7 +543,7 @@ def _(mo):
 
 
 @app.cell
-def _(BIG5_TRAITS, model, pl):
+def _(BIG5_TRAITS, load_model, pl):
     test_samples = [
         'I love meeting new people and being the center of attention.',
         "Sometimes I feel like I'm being watched...",
@@ -559,13 +555,13 @@ def _(BIG5_TRAITS, model, pl):
         'Where the party at?!'
     ]
 
-    def test_inference(samples):
+    def test_inference(model, test_samples):
         embeddings = model.encode(test_samples)
         results_df = pl.DataFrame(embeddings, schema=BIG5_TRAITS)
         results_df = results_df.insert_column(0, pl.Series('text', test_samples))
         return results_df
 
-    test_inference(test_samples)
+    test_inference(load_model(), test_samples)
     return
 
 

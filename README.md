@@ -1,6 +1,6 @@
-# LitServe Vertex AI Serving
+# Big-5 AI Inference Server
 
-This repository includes a LitServe server for the configured `LORA_MODEL`.
+This repository includes a LitServe server for the configured Sentence Transformers model.
 It implements Vertex AI's `/predict` contract: requests use an `instances` array
 and responses return a `predictions` array.
 
