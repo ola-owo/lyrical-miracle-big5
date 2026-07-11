@@ -1,10 +1,6 @@
 HF_USER = 'ola-owo'
 HF_DATASET = 'ola-owo/big-five-personality-traits'
 
-BASE_MODEL_NAME = 'embeddinggemma-300m'
-BASE_MODEL = f'google/{BASE_MODEL_NAME}'
-BASE_MODEL_ARCH = 'Gemma3TextModel'
-
 MODEL_NAME = 'big5-sentence-transformer-lora'
 MODEL = f'{HF_USER}/{MODEL_NAME}'
 

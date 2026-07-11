@@ -148,7 +148,6 @@ def _(BIG5_TRAITS, HF_DATASET, cs, load_dataset, pl):
             df.with_columns(label=pl.concat_arr(cs.starts_with('trait_')))
             .rename({'description': 'sentence'})
             .select('sentence', 'label', 'trait')
-            # .to_arrow()
             .to_pandas()
         )
         return df
@@ -194,54 +193,59 @@ def _(
     SentenceTransformerModelCardData,
     Transformer,
     nn,
+    torch,
+    word_embedding_module,
 ):
     def build_model_from_tf(base_model, peft_config=None):
-        """Instantiate a new untrained model"""
-        word_embedding_module = Transformer(base_model, max_seq_length=512)
-
+        """Instantiate a new untrained model from a Transformer"""
+        embedding_module = Transformer(base_model, max_seq_length=512)
         pooling_module = Pooling(
-            word_embedding_module.get_embedding_dimension(), pooling_mode='cls'
+            embedding_module.get_embedding_dimension(), pooling_mode='cls'
         )
-
         dense_module = Dense(
-            in_features=word_embedding_module.get_embedding_dimension(),
+            in_features=embedding_module.get_embedding_dimension(),
             out_features=5,
             activation_function=nn.Identity(),
         )
-
         model = SentenceTransformer(
             modules=[word_embedding_module, pooling_module, dense_module],
             model_card_data=SentenceTransformerModelCardData(
                 language=['en', 'es'],
                 model_name=f'Big-5 personality scorer based on {base_model}',
-                model_id=f'{HF_USER}/big5-distilbert-lora',
-                base_model=base_model,
+                model_id=f'{HF_USER}/big5-transformer-lora',
                 train_datasets=[{'id': HF_DATASET}],
                 eval_datasets=[{'id': HF_DATASET}],
                 task_name='feature extraction',
                 tags=['feature-extraction'],
             ),
         )
-        # model_card_data.set_base_model(base_model)
-
         if peft_config:
             model.add_adapter(peft_config)
-
         return model
 
 
-    def build_model_from_st(base_model, model_id=None, peft_config=None):
+    def build_model_from_st(base_model, model_name=None, model_id=None, default_prompt=None, peft_config=None):
+        """Instantiate a new untrained model from a Sentence Transformer"""
+        if not model_name:
+            base_model_name = base_model.split('/')[-1]
+            model_name = f'Big-5 personality scorer based on {base_model_name} with LoRA adapter'
+        if not model_id:
+            model_id = MODEL
         model_card_data = SentenceTransformerModelCardData(
             language=['en', 'es'],
-            model_name='lora-finetuned test model',
-            model_id=MODEL,
+            model_name=model_name,
+            model_id=model_id,
             train_datasets=[{'id': HF_DATASET}],
             eval_datasets=[{'id': HF_DATASET}],
             task_name='feature extraction',
             tags=['feature-extraction'],
         )
-
-        model = SentenceTransformer(base_model, model_card_data=model_card_data)
+        model = SentenceTransformer(
+            base_model,
+            model_card_data=model_card_data,
+            default_prompt_name=default_prompt,
+            model_kwargs={'torch_dtype':torch.float32},
+        )
         model.append(Dense(
             in_features=model.get_embedding_dimension(),
             out_features=5,
@@ -249,19 +253,14 @@ def _(
         ))
         if peft_config:
             model.add_adapter(peft_config)
-        # model.model_card_data = model_card_data
         return model
 
 
-    def build_model(base_model: str, **kwargs):
-        TF_MODELS = ('distilbert/distilbert-base-multilingual-cased', )
-        ST_MODELS = ('google/embeddinggemma-300m', 'microsoft/harrier-oss-v1-0.6b')
-        if base_model in TF_MODELS:
+    def build_model(base_model: str, base_is_transformer=False, **kwargs):
+        if base_is_transformer:
             return build_model_from_tf(base_model, **kwargs)
-        elif base_model in ST_MODELS:
-            return build_model_from_st(base_model, **kwargs)
         else:
-            raise ValueError(f'not sure if "{base_model}" is a Transformer or Sentence Transformer')
+            return build_model_from_st(base_model, **kwargs)
 
     return (build_model,)
 
@@ -298,6 +297,17 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    BASE_MODELS_TO_TEST = [
+        'google/embeddinggemma-300m',
+        # 'intfloat/multilingual-e5-small',
+        # 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
+        # 'ibm-granite/granite-embedding-97m-multilingual-r2',
+    ]
+    return (BASE_MODELS_TO_TEST,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -308,14 +318,15 @@ def _(mo):
 
 @app.cell
 def _(
+    BASE_MODELS_TO_TEST,
     LoraConfig,
     MultiLabelBCEWithLogitsLoss,
     SentenceTransformerTrainer,
     SentenceTransformerTrainingArguments,
     TaskType,
     WANDB_PROJECT,
-    base_model,
     build_model,
+    default_prompt,
     ds,
     ds_with_nans,
     torch,
@@ -338,17 +349,12 @@ def _(
                 'max': 1e-4,
             },
             'target_modules': {
-                # all-linear is supposedly better (thinkingmachines.ai/blog/lora/)
+                # all-linear is supposedly better than attention-only (thinkingmachines.ai/blog/lora/)
                 'values': ['all-linear']
-                # 'values': ['attention_only', 'all-linear']
             },
             'dataset': {'values': ['nans']},
-            # 'dataset': {'values': ['orig', 'nans']},
-            'base_model': {'values': [
-                # 'distilbert/distilbert-base-multilingual-cased',
-                'google/embeddinggemma-300m',
-                # 'microsoft/harrier-oss-v1-0.6b',
-            ]},
+            'base_model': {'values': BASE_MODELS_TO_TEST},
+            'task_type': {'values': ['Clustering', 'Classification', 'document']},
         },
     }
 
@@ -356,15 +362,6 @@ def _(
         with wandb.init():
             config = wandb.config
             config_ds = ds if config.dataset == 'orig' else ds_with_nans
-            if config.target_modules == 'attention_only':
-                if config.base_model == 'distilbert/distilbert-base-multilingual-cased':
-                    config_modules = ['q_lin', 'k_lin', 'v_lin', 'out_lin']
-                elif config.base_model in ('google/embeddinggemma-300m', 'microsoft/harrier-oss-v1-0.6b'):
-                    config_modules = ['k_proj', 'o_proj', 'q_proj', 'v_proj']
-                else:
-                    raise ValueError(f'unknown model: {base_model}')
-            else:
-                config_modules = 'all-linear'
 
             model = build_model(
                 config.base_model,
@@ -373,10 +370,10 @@ def _(
                     r=config.lora_r,
                     lora_alpha=config.lora_alpha,
                     lora_dropout=config.lora_dropout,
-                    target_modules=config_modules,
-                )
+                    target_modules=config.target_modules,
+                ),
+                default_prompt=default_prompt,
             )
-
             trainer_args = SentenceTransformerTrainingArguments(
                 output_dir='param_sweep_results',
                 learning_rate=config.learning_rate,
@@ -384,12 +381,10 @@ def _(
                 per_device_train_batch_size=64,
                 per_device_eval_batch_size=64,
                 eval_strategy='epoch',
-                # eval_steps=0.5,
                 logging_steps=0.2,
                 report_to='wandb',
                 run_name=wandb.run.name,  # Sync HF run name with W&B UI
             )
-
             trainer = SentenceTransformerTrainer(
                 model=model,
                 args=trainer_args,
@@ -399,14 +394,12 @@ def _(
             )
             trainer.train()
 
-        # cleanup
+        wandb.finish()
         del model, trainer
         torch.cuda.empty_cache()
 
-    # Initialize and run the sweep experiment
-    # adjust count based on alloted compute time
     sweep_id = wandb.sweep(sweep_config, project=WANDB_PROJECT)
-    wandb.agent(sweep_id, function=sweep_params, count=10)
+    wandb.agent(sweep_id, function=sweep_params, count=15)
     return sweep_config, sweep_id
 
 
@@ -421,7 +414,6 @@ def _(mo):
 @app.cell
 def _(WANDB_PROJECT, ds, ds_with_nans, sweep_config, sweep_id, wandb):
     api = wandb.Api()
-
     sweep = api.sweep(f'ola-owo/{WANDB_PROJECT}/sweeps/{sweep_id}')
     best_run = sweep.best_run()
     best_config = best_run.config
@@ -512,7 +504,7 @@ def _(mo):
 def _(MODEL_NAME, model, trainer):
     model.save_pretrained(f'models/{MODEL_NAME}')
     trainer.push_to_hub(
-        commit_message='End of training (switch to gemma3 base model)', revision='main'
+        commit_message='Use gemma classification prompt structure', revision='main'
     )
     return
 
@@ -525,15 +517,6 @@ def _(mo):
     return
 
 
-@app.cell
-def _(MODEL, SentenceTransformer):
-    def load_model():
-        model = SentenceTransformer(MODEL)
-        return model
-
-    return (load_model,)
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -543,7 +526,7 @@ def _(mo):
 
 
 @app.cell
-def _(BIG5_TRAITS, load_model, pl):
+def _(pl):
     test_samples = [
         'I love meeting new people and being the center of attention.',
         "Sometimes I feel like I'm being watched...",
@@ -551,17 +534,22 @@ def _(BIG5_TRAITS, load_model, pl):
         'I have a very short temper',
         "I'll try anything once ;)'",
         "I'm very opinionated and like to argue with others",
-        'I prefer cozy cafes over loud clubs',
+        'Prefiero los espacios intimos sobre la multitud',
         'Where the party at?!'
     ]
-
-    def test_inference(model, test_samples):
-        embeddings = model.encode(test_samples)
-        results_df = pl.DataFrame(embeddings, schema=BIG5_TRAITS)
+    from big5.globalvars import BIG5_TRAITS_SHORT
+    def test_inference(model, test_samples, prompt_name=None):
+        embeddings = model.encode(test_samples, prompt_name=prompt_name)
+        results_df = pl.DataFrame(embeddings, schema=BIG5_TRAITS_SHORT)
         results_df = results_df.insert_column(0, pl.Series('text', test_samples))
         return results_df
 
-    test_inference(load_model(), test_samples)
+    return test_inference, test_samples
+
+
+@app.cell
+def _(MODEL, SentenceTransformer, test_inference, test_samples):
+    test_inference(SentenceTransformer(MODEL), test_samples)
     return
 
 
