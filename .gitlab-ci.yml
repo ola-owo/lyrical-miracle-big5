@@ -1,9 +1,0 @@
-include:
-  - project: "renovate-bot/renovate-runner"
-    file: "/templates/renovate.gitlab-ci.yml"
-
-renovate:
-  variables:
-    RENOVATE_REPOSITORIES: $CI_PROJECT_PATH
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
