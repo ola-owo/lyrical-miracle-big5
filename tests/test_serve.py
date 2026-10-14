@@ -2,10 +2,10 @@ from collections.abc import Iterator
 from typing import Any
 
 import litserve as ls
-from pydantic import ValidationError
 import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from big5.globalvars import BIG5_TRAITS_SHORT
 from big5.serve import BigFiveAPI, VertexPredictionRequest

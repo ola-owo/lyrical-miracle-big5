@@ -1,24 +1,24 @@
+import logging
 import os
 from typing import Any
-import logging
 
 import litserve as ls
-from sentence_transformers import SentenceTransformer
 from pydantic import (
     BaseModel,
     ConfigDict,
-    RootModel,
     Field,
+    RootModel,
     TypeAdapter,
     model_validator,
 )
+from sentence_transformers import SentenceTransformer
 
 from big5.globalvars import BIG5_TRAITS_SHORT, MODEL
 
 bool_adapter = TypeAdapter(bool)
 
-DEBUG_MODE = bool_adapter.validate_python(os.getenv('BIG5_DEBUG', False))
-BATCH_MODE = bool_adapter.validate_python(os.getenv('BATCH_MODE', True))
+DEBUG_MODE = bool_adapter.validate_python(os.getenv('BIG5_DEBUG', 'False'))
+BATCH_MODE = bool_adapter.validate_python(os.getenv('BATCH_MODE', 'True'))
 
 
 class RequestText(RootModel[str]):
@@ -52,7 +52,7 @@ class BigFiveAPI(ls.LitAPI):
         if not isinstance(request, dict):
             if DEBUG_MODE:
                 log.error(f'Invalid request format: {type(request)}')
-            raise ValueError('Request body must be a JSON object.')
+            raise TypeError('Request body must be a JSON object.')
 
         instances = request.get('instances', [])
         log.info(f'Received instance: {instances}')
@@ -61,7 +61,7 @@ class BigFiveAPI(ls.LitAPI):
 
         parameters = request.get('parameters', {})
         if not isinstance(parameters, dict):
-            raise ValueError("'parameters' must be a JSON object when provided.")
+            raise TypeError("'parameters' must be a JSON object when provided.")
 
         return VertexPredictionRequest(texts=instances, **parameters)
 

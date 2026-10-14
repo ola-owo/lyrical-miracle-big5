@@ -1,0 +1,13 @@
+{
+  "instances": [
+    "I love meeting new people and being the center of attention.",
+    "I often feel anxious and worry about small things.",
+    "I have a very short temper",
+    {"text": "I'm very opinionated and often debate with others"},
+    "I prefer intimate spaces over large crowds",
+    "Prefiero los espacios intimos sobre las multitudes"
+  ],
+  "parameters": {
+    "include_text": true
+  }
+}
