@@ -7,4 +7,3 @@ renovate:
     RENOVATE_REPOSITORIES: $CI_PROJECT_PATH
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_PIPELINE_SOURCE == "push"'
