@@ -1,6 +1,6 @@
 [project]
 name = "lyrical-miracle-big5"
-version = "0.8.0"
+version = "0.9.0"
 requires-python = ">=3.13"
 dependencies = [
     "litserve>=0.2.17",
@@ -10,15 +10,15 @@ dependencies = [
 [project.optional-dependencies]
 cpu = [
     "torch>=2.12.0",
-    "sentence-transformers>=5.6.0",
-    "peft>=0.19.1",
-    "transformers<5.13.0", # adapter loading broken with 5.13.0 and peft 0.19
+    "sentence-transformers>=6.1.0",
+    "peft>=0.21.1",
+    "transformers>=5.20.1",
 ]
 cuda = [
     "torch>=2.12.0",
-    "sentence-transformers>=5.6.0",
-    "peft>=0.19.1",
-    "transformers<5.13.0", # adapter loading broken with 5.13.0 and peft 0.19
+    "sentence-transformers>=6.1.0",
+    "peft>=0.21.1",
+    "transformers>=5.20.1",
 ]
 
 [dependency-groups]
