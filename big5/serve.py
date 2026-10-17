@@ -1,8 +1,9 @@
 import logging
 import os
-from typing import Any
+from typing import Any, override
 
 import litserve as ls
+from fastapi import HTTPException
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -42,9 +43,11 @@ class BigFiveAPI(ls.LitAPI):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
+    @override
     def setup(self, device: str) -> None:
         self.model = SentenceTransformer(MODEL, device=str(device))
 
+    @override
     def decode_request(
         self, request: dict[str, Any], **kwargs
     ) -> VertexPredictionRequest:
@@ -52,22 +55,24 @@ class BigFiveAPI(ls.LitAPI):
         if not isinstance(request, dict):
             if DEBUG_MODE:
                 log.error(f'Invalid request format: {type(request)}')
-            raise TypeError('Request body must be a JSON object.')
+            raise HTTPException(400, 'Request body must be a JSON object.')
 
         instances = request.get('instances', [])
         log.info(f'Received instance: {instances}')
         if not isinstance(instances, list) or not instances:
-            raise ValueError("Request body must include a non-empty 'instances' array.")
+            raise HTTPException(
+                400, "Request body must include a non-empty 'instances' array."
+            )
 
         parameters = request.get('parameters', {})
         if not isinstance(parameters, dict):
-            raise TypeError("'parameters' must be a JSON object when provided.")
+            raise HTTPException(
+                400, "'parameters' must be a JSON object when provided."
+            )
 
         return VertexPredictionRequest(texts=instances, **parameters)
 
-    def _predict_batch(
-        self, request: VertexPredictionRequest | list[VertexPredictionRequest], **kwargs
-    ) -> list[dict[str, Any]]:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def _predict(self, request: VertexPredictionRequest) -> list[dict[str, Any]] | list[list[float]]:
         texts = [t.root for t in request.texts]
         embeddings = self.model.encode(
             texts,
@@ -75,7 +80,7 @@ class BigFiveAPI(ls.LitAPI):
             normalize_embeddings=request.normalize_embeddings,
         )
 
-        predictions: list[dict[str, Any]] = []
+        predictions = []
         for text, embedding in zip(texts, embeddings, strict=True):
             scores = [float(score) for score in embedding.tolist()]
             if request.include_traits:
@@ -88,14 +93,17 @@ class BigFiveAPI(ls.LitAPI):
             predictions.append(scores)
         return predictions
 
+    @override
     def predict(
-        self, request: VertexPredictionRequest, **kwargs
-    ) -> list[dict[str, Any]]:  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+        request: VertexPredictionRequest | list[VertexPredictionRequest],
+    ) -> dict[str, Any] | list[dict[str, Any]]:
         if isinstance(request, list):
-            return [self._predict_batch(batch, **kwargs) for batch in request]
+            return [self._predict(batch) for batch in request]
         else:
-            return self._predict_batch(request, **kwargs)
+            return self._predict(request)
 
+    @override
     def encode_response(self, output: list[dict[str, Any]], **kwargs) -> dict[str, Any]:
         return {'predictions': output}
 
@@ -115,7 +123,7 @@ def main() -> None:
 
     server = ls.LitServer(
         BigFiveAPI(api_path=predict_route, max_batch_size=max_batch_size),
-        accelerator=os.getenv('ACCELERATOR', 'auto'),
+        accelerator=os.getenv('ACCELERATOR', 'auto'),  # pyright: ignore[reportArgumentType]
         healthcheck_path=health_route,
         max_payload_size=max_payload_size,
         timeout=int(os.getenv('INFERENCE_TIMEOUT', '30')),
