@@ -12,7 +12,6 @@ from pydantic import (
     TypeAdapter,
     model_validator,
 )
-from sentence_transformers import SentenceTransformer
 
 from big5.globalvars import BIG5_TRAITS_SHORT, MODEL
 
@@ -45,6 +44,8 @@ class BigFiveAPI(ls.LitAPI):
 
     @override
     def setup(self, device: str) -> None:
+        from sentence_transformers import SentenceTransformer
+
         self.model = SentenceTransformer(MODEL, device=str(device))
 
     @override
@@ -72,7 +73,9 @@ class BigFiveAPI(ls.LitAPI):
 
         return VertexPredictionRequest(texts=instances, **parameters)
 
-    def _predict(self, request: VertexPredictionRequest) -> list[dict[str, Any]] | list[list[float]]:
+    def _predict(
+        self, request: VertexPredictionRequest
+    ) -> list[dict[str, Any]] | list[list[float]]:
         texts = [t.root for t in request.texts]
         embeddings = self.model.encode(
             texts,
@@ -109,6 +112,8 @@ class BigFiveAPI(ls.LitAPI):
 
 
 def main() -> None:
+    import sentence_transformers  # noqa: F401  # fail fast if the model extra is missing
+
     log = logging.getLogger(__name__)
     port = int(os.getenv('AIP_HTTP_PORT', os.getenv('PORT', '8000')))
     predict_route = os.getenv('AIP_PREDICT_ROUTE', '/predict')
