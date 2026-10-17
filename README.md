@@ -1,22 +1,26 @@
 # Big-5 AI Inference Server
 
 This repository includes a LitServe server for the configured Sentence Transformers model.
-It implements Vertex AI's `/predict` contract: requests use an `instances` array
-and responses return a `predictions` array.
+It implements Vertex AI's `/predict` contract:
+requests use an `instances` array and responses return a `predictions` array.
 
 ## Request parameters
 
-The [`endpoints.predict`](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.endpoints/predict)
-endpoint specifies a required `instances` field which is a list of model inputs,
-and an optional `parameters` field which is a dictionary of extra inference parameters.
+The
+[`endpoints.predict`](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.endpoints/predict)
+endpoint specifies a required `instances` field which is a list of model inputs, and an optional
+`parameters` field which is a dictionary of extra inference parameters.
 
 `instances` can contain strings or `{"text": string}` objects.
 
 Supported `parameters` keys are:
 
-- `normalize_embeddings`: boolean indicating whether to normalize outputs to have a norm of 1 (default `false`)
-- `include_text`: boolean indicating whether to include the input text in the response (default `false`)
-- `include_traits`: output a JSON object with trait labels if `true`, or an array without labels if `false` (default `true`)
+- `normalize_embeddings`: boolean indicating whether to normalize outputs to have a norm of 1
+  (default `false`)
+- `include_text`: boolean indicating whether to include the input text in the response
+  (default `false`)
+- `include_traits`: output a JSON object with trait labels if `true`,
+  or an array without labels if `false` (default `true`)
 
 Example request:
 
@@ -61,17 +65,16 @@ The response shape is:
 Build and run the Docker container as usual:
 
 ```bash
+# build with CPU pytorch
 docker buildx build -t lyrical-miracle-big5:cpu .
-docker run --rm -p 8080:8080 lyrical-miracle-big5:cpu
+# or build with CUDA pytorch
+docker buildx build --build-arg TORCH_BACKEND=cuda -t lyrical-miracle-big5:cuda .
+
+docker run --rm -p 8080:8080 lyrical-miracle-big5
 ```
 
-**NOTE:** The Dockerfile uses CPU-only Pytorch by default (`pylock.cpu.toml`).
-To build with CUDA support,`--build-arg PYLOCK=pylock.cu13.toml`
-and use the `cu13` tag.
-
-**NOTE:** You may wish to set the environment variable `HF_TOKEN`
-as Hugging Face API key which will enable faster model downloading
-and increased rate limits.
+**NOTE:** You may wish to set environment variable `HF_TOKEN` to your Hugging Face API key
+which will enable faster model downloading and increased rate limits.
 
 ## Google AI Platform
 
@@ -96,13 +99,11 @@ docker push $AR_TAG_NAME
 
 ### Deploy the model
 
-Import the container image into Model Registry
-Set these fields:
+Import the container image into Model Registry Set these fields:
 
 - `containerSpec.ports.containerPort`: `8080`
 - `containerSpec.predictRoute`: `/predict`
 - `containerSpec.healthRoute`: `/health`
 
-Or set the environment variables:
-`AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`, and `AIP_HEALTH_ROUTE`
-to use non-default values.
+Or set the environment variables: `AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`,
+and `AIP_HEALTH_ROUTE` to use non-default values.
