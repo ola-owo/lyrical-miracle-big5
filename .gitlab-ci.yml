@@ -1,5 +1,7 @@
 test:
-  image: ghcr.io/astral-sh/uv:latest
+  image:
+    name: ghcr.io/astral-sh/uv:latest
+    entrypoint: [""]
   variables:
     UV_CACHE_DIR: .uv-cache
   cache:
