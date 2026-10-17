@@ -1,6 +1,6 @@
 test:
   image:
-    name: ghcr.io/astral-sh/uv:latest
+    name: ghcr.io/astral-sh/uv:python3.13-alpine
     entrypoint: [""]
   variables:
     UV_CACHE_DIR: .uv-cache
