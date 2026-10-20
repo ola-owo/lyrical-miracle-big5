@@ -256,7 +256,7 @@ version = "4.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "idna" },
-    { name = "typing-extensions", marker = "python_full_version < '3.15' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.15'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d2/f4d173e22df740bc37b1db102b386ba719b66e95b0f0d751f556b387e6d2/anyio-4.15.1.tar.gz", hash = "sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94", size = 276966, upload-time = "2026-09-05T10:42:39.44Z" }
 wheels = [
@@ -370,7 +370,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -585,7 +585,7 @@ name = "cryptography"
 version = "50.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9d/af/182eb91b0df3fe75c4d9f26fe70684569566745f6ba7e5c9c73a862c5252/cryptography-50.0.2.tar.gz", hash = "sha256:7b46165bb56eb4704e2eaaf86f3c940d19154535d9b0ca7d6d590b04060e00d5", size = 880623, upload-time = "2026-09-30T15:30:04.884Z" }
 wheels = [
@@ -648,7 +648,7 @@ name = "cuda-bindings"
 version = "13.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cuda-pathfinder", marker = "(python_full_version < '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (python_full_version >= '3.15' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "cuda-pathfinder", marker = "(python_full_version < '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f8/a9/c83eb5aa055a4b0c3776d83f6f88b9e778a6fe0415210977c889c6a0bb8a/cuda_bindings-13.4.3-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:d7c6c9f46fca7f3fc61959ef9a2398ac656172145b43f408e0a6492360cf1c0c", size = 6316533, upload-time = "2026-09-23T02:22:09.694Z" },
@@ -683,43 +683,43 @@ wheels = [
 
 [package.optional-dependencies]
 cublas = [
-    { name = "nvidia-cublas", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cublas", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 cudart = [
-    { name = "nvidia-cuda-runtime", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cuda-runtime", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 cufft = [
-    { name = "nvidia-cufft", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cufft", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 cufile = [
-    { name = "nvidia-cufile", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cufile", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 cupti = [
-    { name = "nvidia-cuda-cupti", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cuda-cupti", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 curand = [
-    { name = "nvidia-curand", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-curand", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 cusolver = [
-    { name = "nvidia-cublas", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-cusolver", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-cusparse", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cublas", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cusolver", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cusparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 cusparse = [
-    { name = "nvidia-cusparse", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cusparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 nvjitlink = [
-    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 nvrtc = [
-    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 nvtx = [
-    { name = "nvidia-nvtx", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvtx", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 
 [[package]]
@@ -1086,8 +1086,8 @@ name = "httpcore2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "truststore", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "h11" },
+    { name = "truststore" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cb/f3/1db7aa2bc2524062192bb0e0323969492d1883152a232fe36eea65f4e35c/httpcore2-2.13.1.tar.gz", hash = "sha256:e0aa977abe17e69a3b820a24542a6fa88702676d83880b8d194dcd18408e5103", size = 68071, upload-time = "2026-09-23T07:47:22.372Z" }
 wheels = [
@@ -1196,11 +1196,11 @@ name = "httpx2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "httpcore2", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "httpx2-jsfetch", marker = "sys_platform == 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "anyio", marker = "sys_platform != 'emscripten'" },
+    { name = "httpcore2", marker = "sys_platform != 'emscripten'" },
+    { name = "httpx2-jsfetch", marker = "sys_platform == 'emscripten'" },
     { name = "idna" },
-    { name = "truststore", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "truststore", marker = "sys_platform != 'emscripten'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d5/44/474bef2a0e9d90f1715d32cb98b0738695ca17ba324095fb2497ed7fbd59/httpx2-2.13.1.tar.gz", hash = "sha256:e48744a19e3af5ee48313d0ce5fe941d5422fae5705ea922a4aabf94d7800dfa", size = 100405, upload-time = "2026-09-23T07:47:23.052Z" }
 wheels = [
@@ -1224,7 +1224,7 @@ dependencies = [
     { name = "click" },
     { name = "filelock" },
     { name = "fsspec" },
-    { name = "hf-xet", marker = "platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "hf-xet", marker = "platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'" },
     { name = "httpx" },
     { name = "packaging" },
     { name = "pyyaml" },
@@ -1259,13 +1259,13 @@ name = "ipython"
 version = "9.17.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "ipython-pygments-lexers" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
     { name = "prompt-toolkit" },
-    { name = "psutil", marker = "(sys_platform != 'cygwin' and sys_platform != 'emscripten') or (sys_platform == 'cygwin' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "psutil", marker = "sys_platform != 'cygwin' and sys_platform != 'emscripten'" },
     { name = "pygments" },
     { name = "stack-data" },
     { name = "traitlets" },
@@ -1498,9 +1498,9 @@ dependencies = [
     { name = "jaraco-classes" },
     { name = "jaraco-context" },
     { name = "jaraco-functools" },
-    { name = "jeepney", marker = "sys_platform == 'linux' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "pywin32-ctypes", marker = "sys_platform == 'win32' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "secretstorage", marker = "sys_platform == 'linux' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "jeepney", marker = "sys_platform == 'linux'" },
+    { name = "pywin32-ctypes", marker = "sys_platform == 'win32'" },
+    { name = "secretstorage", marker = "sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/4b/674af6ef2f97d56f0ab5153bf0bfa28ccb6c3ed4d1babf4305449668807b/keyring-25.7.0.tar.gz", hash = "sha256:fe01bd85eb3f8fb3dd0405defdeac9a5b4f6f0439edbb3149577f244a2e8245b", size = 63516, upload-time = "2025-11-16T16:26:09.482Z" }
 wheels = [
@@ -1703,32 +1703,32 @@ train = [
 
 [[package]]
 name = "marimo"
-version = "0.25.1"
+version = "0.25.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "click", marker = "sys_platform != 'emscripten'" },
     { name = "docutils" },
     { name = "itsdangerous" },
     { name = "jedi" },
-    { name = "loro", marker = "(sys_platform != 'android' and sys_platform != 'emscripten') or (sys_platform == 'android' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "loro", marker = "python_full_version < '3.15' and sys_platform != 'android' and sys_platform != 'emscripten'" },
     { name = "markdown" },
     { name = "msgspec" },
     { name = "narwhals" },
     { name = "packaging" },
-    { name = "psutil", marker = "(sys_platform != 'android' and sys_platform != 'emscripten') or (sys_platform == 'android' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "psutil", marker = "sys_platform != 'android' and sys_platform != 'emscripten'" },
     { name = "pygments" },
     { name = "pymdown-extensions" },
     { name = "python-multipart" },
     { name = "pyyaml" },
-    { name = "pyzmq", marker = "(python_full_version < '3.15' and sys_platform != 'emscripten') or (python_full_version >= '3.15' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "starlette", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "pyzmq", marker = "sys_platform != 'emscripten'" },
+    { name = "starlette", marker = "sys_platform != 'emscripten'" },
     { name = "tomlkit" },
-    { name = "uvicorn", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "websockets", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
+    { name = "websockets", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/7b/29895b0d747758da46a051f57c594634ab02f3993d5eab2f2e49ce4f144f/marimo-0.25.1.tar.gz", hash = "sha256:934db2ceb6c2b8c9ae3514a7a22e6b22ecf54fabea0b6138aed1980f8f1536ff", size = 50186739, upload-time = "2026-10-01T21:01:28.262Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/d6/f4aae3466a41d34952ac84a4b9bcd83744da592b496c98e34ccd2a0f20d9/marimo-0.25.2.tar.gz", hash = "sha256:3cfa38ac84c66625e1f7cb7dc81a41ebd592244000ffe37effb28a91765056b0", size = 38844392, upload-time = "2026-10-19T20:10:30.145Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/e6/695f462fd473981325146edde01c12390413ebaa33c1f0b49191d6b55f86/marimo-0.25.1-py3-none-any.whl", hash = "sha256:dec4a87bc5db16b85181ba4880e67bb55485912b7ef26748a0bbf052c59203fd", size = 50850300, upload-time = "2026-10-01T21:01:24.577Z" },
+    { url = "https://files.pythonhosted.org/packages/06/5c/c26a57aefe28fceab762ad104744c1af18a4b62809629897722c866bbd2f/marimo-0.25.2-py3-none-any.whl", hash = "sha256:7acb7a433755c6d965c03e07725477ab63804f6667ba9e37e4da582f358018c7", size = 39465510, upload-time = "2026-10-19T20:10:25.147Z" },
 ]
 
 [[package]]
@@ -1875,12 +1875,12 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pyjwt", extra = ["crypto"] },
     { name = "python-multipart" },
-    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "sse-starlette" },
     { name = "starlette" },
     { name = "typing-extensions" },
     { name = "typing-inspection" },
-    { name = "uvicorn", marker = "sys_platform != 'emscripten' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ba/93/0142dc84a666daf8ad51a34268f34c12fd6fda4f3810c4be2504eecc8212/mcp-1.30.0.tar.gz", hash = "sha256:445414625fce5c295faa505bb11bacece661ab6f4028d57c935db57820b7a3e4", size = 680511, upload-time = "2026-09-07T14:34:15.845Z" }
 wheels = [
@@ -2193,7 +2193,7 @@ name = "nvidia-cublas"
 version = "13.4.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cuda-nvrtc", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cuda-nvrtc", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/a0/5cd9d4b08a8320f7ca150ee0d66c97e98092922e338336cb4b62da7500c3/nvidia_cublas-13.4.1.3-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:4eb1472bf92b741e7cf24da7978dde251b58ddec2092d9f6a04f3623eb4e9a15", size = 513048232, upload-time = "2026-07-16T09:45:07.751Z" },
@@ -2236,7 +2236,7 @@ name = "nvidia-cudnn-cu13"
 version = "9.24.0.43"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cublas", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ca/30/7c257e3d5cb4fecb147b93895c66e29c93f8e76d74b45bb418ff0587c4ec/nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:a6812a554a1ff0413e9c52b84c26c050380649ab9615f9c16bded368ce9f421f", size = 650976863, upload-time = "2026-07-02T16:23:39.248Z" },
@@ -2249,7 +2249,7 @@ name = "nvidia-cufft"
 version = "12.2.0.57"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/07/8d/f650e6d527f9d22b5ded906c000eaebb037721c06d4ecd906df62f300979/nvidia_cufft-12.2.0.57-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:1ed438568ae1088ba2c25789d10205d4104b8b140b7bd942e39a787947a0fb74", size = 218244742, upload-time = "2026-07-16T09:47:08.76Z" },
@@ -2281,9 +2281,9 @@ name = "nvidia-cusolver"
 version = "12.2.0.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-cusparse", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cublas", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-cusparse", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/60/df/9e6b603f1d64040ce3e076e9bce1b78e2d588d0aabc9783f351cecd861ab/nvidia_cusolver-12.2.0.11-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:8be097fca28de6be0990ab216ee9b804dd51077e1d1d83acf6c9850650bdc64d", size = 250383075, upload-time = "2026-07-16T09:50:16.355Z" },
@@ -2296,7 +2296,7 @@ name = "nvidia-cusparse"
 version = "12.7.10.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/60/35/abbd278fb6d039fcfb5175efa10a21007a11878bec59920d84854b47d766/nvidia_cusparse-12.7.10.12-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:597eff2cd83e3ab1d1e3a0dce9c9c879d77cf64ec2659bfdb5af6a5d02e7aaa9", size = 169043093, upload-time = "2026-07-16T09:51:37.058Z" },
@@ -2538,7 +2538,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "python-dateutil" },
-    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e2/17/d7b106e05bfa642e8694451e7d3d759c6a241c5386a5d962e4f66c047e06/pandas-3.0.6.tar.gz", hash = "sha256:66b07ef7315a31bfe1089cd3d71a7de781c9dca986762d0b4fe7c0ef17465d10", size = 4667686, upload-time = "2026-09-17T23:23:18.345Z" }
 wheels = [
@@ -2621,7 +2621,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "ptyprocess" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -3206,7 +3206,7 @@ name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
@@ -3313,7 +3313,7 @@ name = "pyzmq"
 version = "27.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "cffi", marker = "implementation_name == 'pypy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e7/8d/5b3d5631c2f4b4b8862f64cd0c9eb777b5710eeb5125b4be8dd0a200a4c0/pyzmq-27.2.0.tar.gz", hash = "sha256:54d4259d1bfae24ecdb5ca79f7acc2eac6c286a02d6a0ae617797cb45f0726d3", size = 292316, upload-time = "2026-08-20T19:08:21.19Z" }
 wheels = [
@@ -3701,8 +3701,8 @@ name = "secretstorage"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cryptography", marker = "(sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'darwin' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'darwin' and extra != 'extra-20-lyrical-miracle-big5-cpu') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
-    { name = "jeepney", marker = "(sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'darwin' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'darwin' and extra != 'extra-20-lyrical-miracle-big5-cpu') or (sys_platform == 'emscripten' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "cryptography" },
+    { name = "jeepney" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1c/03/e834bcd866f2f8a49a85eaff47340affa3bfa391ee9912a952a1faa68c7b/secretstorage-3.5.0.tar.gz", hash = "sha256:f04b8e4689cbce351744d5537bf6b1329c6fc68f91fa666f60a380edddcd11be", size = 19884, upload-time = "2025-11-23T19:02:53.191Z" }
 wheels = [
@@ -4014,7 +4014,7 @@ resolution-markers = [
     "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "cuda-bindings", marker = "(python_full_version < '3.15' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (python_full_version >= '3.15' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "cuda-bindings", marker = "(python_full_version < '3.15' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
     { name = "cuda-toolkit", extra = ["cublas", "cudart", "cufft", "cufile", "cupti", "curand", "cusolver", "cusparse", "nvjitlink", "nvrtc", "nvtx"], marker = "(sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
     { name = "filelock", marker = "extra == 'extra-20-lyrical-miracle-big5-cuda'" },
     { name = "fsspec", marker = "extra == 'extra-20-lyrical-miracle-big5-cuda'" },
@@ -4026,7 +4026,7 @@ dependencies = [
     { name = "nvidia-nvshmem-cu13", marker = "(sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
     { name = "setuptools", marker = "extra == 'extra-20-lyrical-miracle-big5-cuda'" },
     { name = "sympy", marker = "extra == 'extra-20-lyrical-miracle-big5-cuda'" },
-    { name = "triton", marker = "(python_full_version < '3.15' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (python_full_version >= '3.15' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform != 'linux' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "triton", marker = "(python_full_version < '3.15' and sys_platform == 'linux' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
     { name = "typing-extensions", marker = "extra == 'extra-20-lyrical-miracle-big5-cuda'" },
 ]
 wheels = [
@@ -4052,7 +4052,7 @@ name = "tqdm"
 version = "4.70.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0d/ea/b2a5bd54b28a324dae8211928b2d730b6547500342c7e6c6dea08bd0a485/tqdm-4.70.1.tar.gz", hash = "sha256:cefd0eca11b2a37a3aee776544d4f4ae913f02688135b5556b8788dfa474afc4", size = 171846, upload-time = "2026-09-11T07:25:16.601Z" }
 wheels = [
@@ -4182,7 +4182,7 @@ standard = [
     { name = "httptools" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
-    { name = "uvloop", marker = "(platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32') or (platform_python_implementation == 'PyPy' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'cygwin' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda') or (sys_platform == 'win32' and extra == 'extra-20-lyrical-miracle-big5-cpu' and extra == 'extra-20-lyrical-miracle-big5-cuda')" },
+    { name = "uvloop", marker = "platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32'" },
     { name = "watchfiles" },
     { name = "websockets" },
 ]
