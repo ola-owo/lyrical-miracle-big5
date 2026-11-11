@@ -7,4 +7,17 @@
     enabled: true,
   },
   rangeStrategy: "update-lockfile",
+
+  // automerge when tests pass
+  "platformAutomerge": true,
+  packageRules: [
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      automerge: true,
+    },
+    {
+      "matchPackageNames": ["python"],
+      "automerge": false
+    }
+  ],
 }
