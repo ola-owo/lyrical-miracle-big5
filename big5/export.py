@@ -78,8 +78,6 @@ def export_model(
     Returns:
         The output directory.
     """
-    from sentence_transformers import SentenceTransformer
-
     if output.exists():
         if not output.is_dir():
             raise FileExistsError(f'{output} exists and is not a directory.')
@@ -89,6 +87,8 @@ def export_model(
                 'stale adapter files cannot leak into the export.'
             )
     output.mkdir(parents=True, exist_ok=True)
+
+    from sentence_transformers import SentenceTransformer
 
     logger.info('Loading adapter from %s', source)
     model = SentenceTransformer(source, revision=revision)
