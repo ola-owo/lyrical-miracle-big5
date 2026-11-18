@@ -5,19 +5,23 @@
   // update uv.lock while allowing lower bounds in pyproject
   lockFileMaintenance: {
     enabled: true,
+    automerge: true,
   },
   rangeStrategy: "update-lockfile",
 
-  // automerge when tests pass
-  "platformAutomerge": true,
   packageRules: [
+    // automerge non-breaking updates when tests pass
     {
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      matchIsBreaking: false,
+      matchCurrentVersion: "!/^0/",
       automerge: true,
     },
+    // don't automerge python updates (except patches)
     {
-      "matchPackageNames": ["python"],
-      "automerge": false
-    }
+      matchPackageNames: ["python"],
+      matchUpdateTypes: ["major", "minor"],
+      automerge: false,
+    },
   ],
 }
