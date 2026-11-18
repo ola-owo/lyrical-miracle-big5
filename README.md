@@ -58,6 +58,86 @@ The response shape is:
 }
 ```
 
+## Model storage
+
+Serving never downloads from Hugging Face. The model must be available as a
+standalone directory:
+
+- `BIG5_MODEL_URI`: a `gs://` prefix or local directory.
+- `AIP_STORAGE_URI`: set automatically by Vertex AI when the model is deployed
+  with an `artifactUri`.
+
+`BIG5_MODEL_URI` takes precedence. If neither is set, the server exits with an
+error. `gs://` downloads use Application Default Credentials (ADC) and are
+cached in `BIG5_MODEL_CACHE` (default: a directory under the system temp dir).
+Use a new versioned prefix for each model release; the cache is keyed by URI and
+does not notice overwritten objects.
+
+Model artifacts are downloaded and loaded before LitServe binds the HTTP port.
+If startup takes longer than the Vertex AI liveness probe window, configure a
+startup probe on the model's container spec.
+
+### Export a standalone model
+
+The Hugging Face repository contains a PEFT adapter over the gated
+`google/embeddinggemma-300m` base model. Merge it before uploading:
+
+```bash
+uv run --extra cpu export-model \
+  --source ola-owo/big5-sentence-transformer-lora \
+  --output models/export/big5-sentence-transformer-lora/v1
+```
+
+The export command requires Hugging Face access once to download the gated base
+model. It verifies the result with `HF_HUB_OFFLINE=1` before finishing.
+
+### Upload
+
+```bash
+gcloud storage cp -r models/export/big5-sentence-transformer-lora/v1/* \
+  gs://<bucket>/big5/models/big5-sentence-transformer-lora/v1/
+```
+
+Keep the bucket private. Confirm the layout:
+
+```bash
+gcloud storage ls gs://<bucket>/big5/models/big5-sentence-transformer-lora/v1/modules.json
+```
+
+### Authentication
+
+Local development:
+
+```bash
+gcloud auth application-default login
+```
+
+On Vertex AI, ADC is provided by the metadata server. For direct bucket access,
+grant the runtime service account `roles/storage.objectViewer` on the bucket:
+
+```bash
+gcloud storage buckets add-iam-policy-binding gs://<bucket> \
+  --member=serviceAccount:<runtime-sa>@<project>.iam.gserviceaccount.com \
+  --role=roles/storage.objectViewer
+```
+
+If you deploy with an `artifactUri`, Vertex AI copies the artifacts to a
+managed bucket, sets `AIP_STORAGE_URI`, and grants the service account read
+access automatically. The Vertex AI service agent
+(`service-<project-number>@gcp-sa-aiplatform.iam.gserviceaccount.com`) needs
+`roles/storage.objectViewer` on the source bucket to perform that copy.
+
+For direct `BIG5_MODEL_URI` access, note that the default prediction service
+account is managed by Vertex AI and cannot be granted bucket permissions.
+Configure a custom service account for the deployed model and grant it
+`roles/storage.objectViewer` on the bucket, or use `artifactUri` instead.
+
+### Vertex AI artifact option
+
+Set `artifactUri` to the GCS prefix when importing the model. The container
+reads the URI from `AIP_STORAGE_URI`; no bucket name or `BIG5_MODEL_URI` is
+needed in the image.
+
 ## Docker
 
 ### Build the image
@@ -73,8 +153,15 @@ docker buildx build --build-arg TORCH_BACKEND=cuda -t lyrical-miracle-big5:cuda 
 docker run --rm -p 8080:8080 lyrical-miracle-big5
 ```
 
-**NOTE:** You may wish to set environment variable `HF_TOKEN` to your Hugging Face API key
-which will enable faster model downloading and increased rate limits.
+**NOTE:** The container needs Application Default Credentials when the model is
+loaded from `gs://`. For local Docker testing, mount your ADC directory:
+
+```bash
+docker run --rm -p 8080:8080 \
+  -e BIG5_MODEL_URI=gs://<bucket>/big5/models/big5-sentence-transformer-lora/v1 \
+  -v ~/.config/gcloud:/root/.config/gcloud:ro \
+  lyrical-miracle-big5:cpu
+```
 
 ## Google AI Platform
 
@@ -104,6 +191,13 @@ Import the container image into Model Registry Set these fields:
 - `containerSpec.ports.containerPort`: `8080`
 - `containerSpec.predictRoute`: `/predict`
 - `containerSpec.healthRoute`: `/health`
+
+Then choose one model source:
+
+- Set `containerSpec.env.BIG5_MODEL_URI` to the GCS model prefix and grant the
+  runtime service account `roles/storage.objectViewer` on the bucket.
+- Or set `artifactUri` to the GCS model prefix. Vertex AI copies the artifacts
+  and sets `AIP_STORAGE_URI` automatically.
 
 Or set the environment variables: `AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`,
 and `AIP_HEALTH_ROUTE` to use non-default values.

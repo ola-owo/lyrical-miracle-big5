@@ -13,7 +13,8 @@ from pydantic import (
     model_validator,
 )
 
-from big5.globalvars import BIG5_TRAITS_SHORT, MODEL
+from big5.globalvars import BIG5_TRAITS_SHORT
+from big5.model_store import resolve_model_path
 
 bool_adapter = TypeAdapter(bool)
 
@@ -46,7 +47,11 @@ class BigFiveAPI(ls.LitAPI):
     def setup(self, device: str) -> None:
         from sentence_transformers import SentenceTransformer
 
-        self.model = SentenceTransformer(MODEL, device=str(device))
+        model_path = resolve_model_path()
+        logging.getLogger(__name__).info(f'Loading model from {model_path}')
+        self.model = SentenceTransformer(
+            str(model_path), device=str(device), local_files_only=True
+        )
 
     @override
     def decode_request(
@@ -115,6 +120,8 @@ def main() -> None:
     import sentence_transformers  # noqa: F401  # fail fast if the model extra is missing
 
     log = logging.getLogger(__name__)
+    model_path = resolve_model_path()
+    log.info(f'Serving model from {model_path}')
     port = int(os.getenv('AIP_HTTP_PORT', os.getenv('PORT', '8000')))
     predict_route = os.getenv('AIP_PREDICT_ROUTE', '/predict')
     health_route = os.getenv('AIP_HEALTH_ROUTE', '/health')
