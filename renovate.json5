@@ -2,6 +2,10 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended", "gitlab>renovate-bot/renovate-runner"],
   platform: "gitlab",
+  minimumReleaseAge: "7 days",
+  prCreation: "not-pending",
+  internalChecksFilter: "strict",
+  internalChecksAsSuccess: true,
 
   // update uv.lock while allowing lower bounds in pyproject
   lockFileMaintenance: {
